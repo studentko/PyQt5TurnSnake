@@ -1,5 +1,6 @@
-from BaseBlock import BaseBlock
 from enum import Enum
+
+from GameMechanic.BaseBlock import BaseBlock
 
 
 class SnakeBlock(BaseBlock):

@@ -1,7 +1,7 @@
-from enum import Enum
-from GridContainer import *
-from SnakeBlock import *
-from MovableObject import *
+from .GridContainer import *
+from .SnakeBlock import *
+
+from GameMechanic.MovableObject import *
 
 
 class Snake(MovableObject):

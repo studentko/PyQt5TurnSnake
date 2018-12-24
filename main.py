@@ -1,7 +1,6 @@
-from BaseBlock import BaseBlock
-from GridContainer import GridContainer
-from Snake import *
-from LevelController import *
+from GameMechanic.Snake import *
+
+from GameMechanic.LevelController import *
 
 if __name__=="__main__":
     print("Zdravo")

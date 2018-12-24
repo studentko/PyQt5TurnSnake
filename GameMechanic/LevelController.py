@@ -1,4 +1,4 @@
-from Snake import *
+from GameMechanic.Snake import *
 
 
 class LevelController:
