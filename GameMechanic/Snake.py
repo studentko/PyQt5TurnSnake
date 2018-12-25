@@ -14,6 +14,7 @@ class Snake(MovableObject):
         for i in range(length):
             sb = SnakeBlock()
             sb.sbType = ESnakeBlockType.body
+            sb.direction = moveDirection.getDirection()
             gridContainer.move_block(sb, x + moveDirection.x * i, y + moveDirection.y * i)
             self.blocks.append(sb)
         self.blocks[0].sbType = ESnakeBlockType.tail
@@ -26,6 +27,7 @@ class Snake(MovableObject):
         tail = self.blocks.pop(0)
         head = self.blocks[-1]
         self.gridContainer.move_block(tail, head.x + next_step.x, head.y + next_step.y)
+        tail.direction = next_step.getDirection()
         tail.sbType = ESnakeBlockType.head
         head.sbType = ESnakeBlockType.body
         self.blocks.append(tail)

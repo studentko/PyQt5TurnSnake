@@ -31,6 +31,12 @@ class BlockWidget(QWidget):
         p = QPainter(self)
         r = event.rect()
 
+        p.translate(r.x(), r.y())
+        r.moveTo(0, 0)
+
         for i in self.texEnums:
+            p.translate(r.width() / 2, r.height() / 2)
+            p.rotate(i.direction)
+            p.translate(-r.width() / 2, -r.height() / 2)
             p.drawImage(r, self.imgs[i.getDrawable()])
 
