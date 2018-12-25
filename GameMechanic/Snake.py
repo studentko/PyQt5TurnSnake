@@ -10,6 +10,8 @@ class Snake(MovableObject):
         self.gridContainer = gridContainer
         self.steps = steps
         self.blocks = []
+        self.indexInPlayer = -1
+        self.lastStepDirection = moveDirection
 
         for i in range(length):
             sb = SnakeBlock()
@@ -29,5 +31,8 @@ class Snake(MovableObject):
         tail.sbType = ESnakeBlockType.head
         head.sbType = ESnakeBlockType.body
         self.blocks.append(tail)
+        self.lastStepDirection = next_step
         return True
 
+    def get_head(self):
+        return self.blocks[-1]

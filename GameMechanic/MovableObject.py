@@ -7,13 +7,17 @@ class MovableObject:
 
     def set_move_steps(self, moveSteps):
         self.moveSteps = []
-        self.moveSteps.append(self, moveSteps)
+        #self.moveSteps.append(moveSteps)
+        self.moveSteps.extend(moveSteps)
 
     def get_move_steps(self):
         return self.moveSteps
 
     def make_step(self):
         pass
+
+    def has_steps(self):
+        return len(self.moveSteps) > 0
 
 
 class EMoveDirection(Enum):
