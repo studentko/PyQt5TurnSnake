@@ -62,7 +62,7 @@ class LevelController:
 
             for j in range(self.gameConfig.snakeNumber):
                 snake = Snake(self.gridContainer, start_x, start_y, self.gameConfig.snakeSize + j,
-                              self.gameConfig.snakeSteps, direction)
+                              self.gameConfig.snakeSteps, direction, EColor(i + 1))
                 player.add_snake(snake)
                 self.movables.append(snake)
                 start_y = start_y + y_delta
