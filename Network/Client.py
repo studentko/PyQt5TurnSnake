@@ -14,7 +14,7 @@ class Client:
     def connect(self):
         self.socket.connect((self.ip, self.port))
 
-    def get_command(self):
+    def get_command(self) -> NetworkCommand:
         return get_command_from_socket(self.socket)
 
     def send_plans(self, movingPlans):

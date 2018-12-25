@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QPainter, QImage
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.Qt import *
-from GameMechanic.GridContainer import GridContainer
+from Network.GridContainerUpdate import *
 from Client.widgets import *
 
 class TurnSnakeWindow(QMainWindow):
@@ -22,6 +23,11 @@ class TurnSnakeWindow(QMainWindow):
         self.imgsRaw.append(QImage("Client\\rep.png"))
 
         self.__initUI__()
+
+
+    def setListener(self, listener):
+        listener.update.connect(self.update)
+
 
     def __initUI__(self):
 
@@ -51,9 +57,10 @@ class TurnSnakeWindow(QMainWindow):
             self.imgs.append(i.scaled(self.width() // self.gridWidth, self.height() // self.gridHeigth, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
 
-    def update(self, gc: GridContainer):
+    @pyqtSlot(GridContainerUpdate)
+    def update(self, gc: GridContainerUpdate):
         for i in range(0, self.gridWidth):
             for j in range(0, self.gridHeigth):
-                self.blockGrid[i][j].setTextures(gc.blockMatrix[i][j])
+                self.blockGrid[i][j].setTextures(gc.gridContainer.blockMatrix[i][j])
         self.repaint()
 
