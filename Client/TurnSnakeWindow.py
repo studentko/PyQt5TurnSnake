@@ -55,4 +55,5 @@ class TurnSnakeWindow(QMainWindow):
         for i in range(0, self.gridWidth):
             for j in range(0, self.gridHeigth):
                 self.blockGrid[i][j].setTextures(gc.blockMatrix[i][j])
+        self.repaint()
 
