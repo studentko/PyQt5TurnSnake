@@ -1,5 +1,6 @@
 from GameMechanic.Snake import *
 from GameMechanic.Player import *
+from GameMechanic.WallBlock import *
 
 class LevelController:
     def __init__(self, gameConfig):
@@ -20,6 +21,18 @@ class LevelController:
             snake.moveSteps.append(EMoveDirection.right)
 
     def init_board(self):
+        self.init_walls()
+        self.init_players()
+
+    def init_walls(self):
+        for i in range(self.gridContainer.width):
+            self.gridContainer.move_block(WallBlock(), i, 0)
+            self.gridContainer.move_block(WallBlock(), i, self.gridContainer.height - 1)
+        for i in range(self.gridContainer.height - 2):
+            self.gridContainer.move_block(WallBlock(), 0, i + 1)
+            self.gridContainer.move_block(WallBlock(), self.gridContainer.width - 1, i + 1)
+
+    def init_players(self):
         for i in range(self.gameConfig.playerNumber):
             player = Player()
             start_x = 0
@@ -33,16 +46,16 @@ class LevelController:
                 y_delta = 2
             if i == 2:
                 start_x = 2
-                start_y = self.gridContainer.height - 2
+                start_y = self.gridContainer.height - 3
                 direction = EMoveDirection.right
                 y_delta = -2
             if i == 1:
-                start_x = self.gridContainer.width - 2
-                start_y = self.gridContainer.height - 2
+                start_x = self.gridContainer.width - 3
+                start_y = self.gridContainer.height - 3
                 direction = EMoveDirection.left
                 y_delta = -2
             if i == 3:
-                start_x = self.gridContainer.width - 2
+                start_x = self.gridContainer.width - 3
                 start_y = 2
                 direction = EMoveDirection.left
                 y_delta = 2

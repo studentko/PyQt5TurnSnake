@@ -6,9 +6,10 @@ class BaseBlock:
         self.x = -1
         self.y = -1
         self.direction = 0
+        self.drawable = EDrawable.Default
 
     def getDrawable(self):
-        return EDrawable.Default
+        return self.drawable
 
 
 class EDrawable(IntEnum):
@@ -17,4 +18,5 @@ class EDrawable(IntEnum):
     Head = 1
     Body = 2
     Tail = 3
+    Wall = 4
 
