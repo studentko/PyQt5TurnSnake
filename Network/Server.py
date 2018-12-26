@@ -10,10 +10,10 @@ from time import sleep
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, gameConfig):
         self.ip = "0.0.0.0"
         self.port = 12355
-        self.gameConfig = GameConfig()
+        self.gameConfig = gameConfig
         self.levelController = LevelController(self.gameConfig)
         self.socket = None
         self.clients = []
