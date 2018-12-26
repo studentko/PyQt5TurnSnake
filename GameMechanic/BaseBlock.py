@@ -15,6 +15,7 @@ class BaseBlock:
     def get_color(self):
         return self.color
 
+
 class EDrawable(IntEnum):
     Default = -1
     Food1 = 0
@@ -22,6 +23,9 @@ class EDrawable(IntEnum):
     Body = 2
     Tail = 3
     Wall = 4
+    FoodStep = 5
+    FoodSnake = 6
+
 
 class EColor(IntEnum):
     none = 0
