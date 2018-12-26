@@ -35,9 +35,17 @@ class EMoveDirection(Enum):
     def getDirection(self):
         if(self == EMoveDirection.right):
             return 90
-        elif(self == EMoveDirection.down):
+        elif(self == EMoveDirection.up):
             return 180
         elif(self == EMoveDirection.left):
             return 270
         return 0
 
+    def getOposite(self):
+        if(self == EMoveDirection.up):
+            return EMoveDirection.down
+        elif(self == EMoveDirection.down):
+            return  EMoveDirection.up
+        elif(self == EMoveDirection.left):
+            return  EMoveDirection.right
+        return EMoveDirection.left

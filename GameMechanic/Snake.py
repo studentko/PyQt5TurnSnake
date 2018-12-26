@@ -38,5 +38,5 @@ class Snake(MovableObject):
         self.lastStepDirection = next_step
         return True
 
-    def get_head(self):
+    def get_head(self) -> SnakeBlock:
         return self.blocks[-1]

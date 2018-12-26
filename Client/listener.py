@@ -8,8 +8,9 @@ class Listener(QObject):
     finished = pyqtSignal()
     update = pyqtSignal(GridContainerUpdate)
 
-    def __init__(self):
+    def __init__(self, tsWin: TurnSnakeWindow):
         super().__init__()
+        self.tsWin = tsWin
     
         self.snakes = []
 
@@ -41,11 +42,7 @@ class Listener(QObject):
             elif(command.comm == ENetworkCommand.container_update):
                 self.update.emit(command.data)
                 self.snakes = command.data.snakes
+            elif(command.comm == ENetworkCommand.turn_count_start):
+                self.tsWin.startPlaning(command.data)
             elif(command.comm == ENetworkCommand.call_for_plans):
-                temp = MovingPlans()
-                for s in self.snakes:
-                    moves = []
-                    for _ in range(s.steps):
-                        moves.append(s.lastStepDirection)
-                    temp.set_plan(s, moves)
-                client.send_plans(temp)
+                client.send_plans(self.tsWin.endPlaningAndGetPlans())

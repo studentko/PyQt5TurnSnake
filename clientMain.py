@@ -9,7 +9,7 @@ if __name__ == "__main__":
     app = QApplication([])
     turnSnake = TurnSnakeWindow()
 
-    listener = Listener()
+    listener = Listener(turnSnake)
     listener.start()
 
     turnSnake.setListener(listener)

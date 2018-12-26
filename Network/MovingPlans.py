@@ -7,5 +7,5 @@ class MovingPlans:
     def set_plan(self, snake, plan):
         self.plans[snake.indexInPlayer] = plan
 
-    def get_plan(self, snake):
+    def get_plan(self, snake) -> []:
         return self.plans[snake.indexInPlayer]
