@@ -58,7 +58,8 @@ class Server:
     def send_grid_update(self):
         for i in range(len(self.clients)):
             c = self.clients[i]
-            gcu = GridContainerUpdate(self.levelController.gridContainer, self.levelController.players[i].snakes)
+            gcu = GridContainerUpdate(self.levelController.gridContainer,
+                                      self.levelController.players[i].snakes)
             send_command_to_socket(NetworkCommand(ENetworkCommand.container_update, gcu), c)
 
     def get_plans_from_clients(self):

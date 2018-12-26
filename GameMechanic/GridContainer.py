@@ -23,3 +23,7 @@ class GridContainer:
                 print(len(y), end=' ')
             print()
         print("\n\n")
+
+    def remove_block(self, baseBlock):
+        if baseBlock.x >= 0 and baseBlock.y >= 0:
+            self.blockMatrix[baseBlock.y][baseBlock.x].remove(baseBlock)
