@@ -26,6 +26,7 @@ class TurnSnakeWindow(QMainWindow):
         self.imgsRaw.append(QImage("Client\\head.png"))
         self.imgsRaw.append(QImage("Client\\telo.png"))
         self.imgsRaw.append(QImage("Client\\rep.png"))
+        self.imgsRaw.append(QImage("Client\\spoj.png"))
         self.imgsRaw.append(QImage("Client\\prepreka.png"))
         self.imgsRaw.append(QImage("Client\\kretanje.png"))
 

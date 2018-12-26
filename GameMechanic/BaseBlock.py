@@ -21,8 +21,9 @@ class EDrawable(IntEnum):
     Head = 1
     Body = 2
     Tail = 3
-    Wall = 4
-    MovePoint = 5
+    BodyAnble = 4
+    Wall = 5
+    MovePoint = 6
 
 class EColor(IntEnum):
     none = 0

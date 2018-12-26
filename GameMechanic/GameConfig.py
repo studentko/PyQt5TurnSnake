@@ -4,4 +4,4 @@ class GameConfig:
         self.snakeNumber = 2
         self.snakeSize = 4
         self.snakeSteps = 6
-        self.turnPlanTime = 300.0
+        self.turnPlanTime = 5.0

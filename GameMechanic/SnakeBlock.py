@@ -8,6 +8,8 @@ class SnakeBlock(BaseBlock):
         super(SnakeBlock, self).__init__()
         self.sbType = ESnakeBlockType.none
         self.parentSnake = parentSnake
+        #actual part direction, baseblock.direction used for texture direction
+        self.headingDir = 0
 
     def getDrawable(self):
         return EDrawable(int(self.sbType))
@@ -18,4 +20,5 @@ class ESnakeBlockType(IntEnum):
     head = 1
     body = 2
     tail = 3
+    bodyAngle = 4
 

@@ -19,6 +19,7 @@ class Snake(MovableObject):
             sb = SnakeBlock(self)
             sb.sbType = ESnakeBlockType.body
             sb.direction = moveDirection.getDirection()
+            sb.headingDir = moveDirection
             sb.color = snakeColor
             gridContainer.move_block(sb, x + moveDirection.x * i, y + moveDirection.y * i)
             self.blocks.append(sb)
@@ -32,9 +33,41 @@ class Snake(MovableObject):
         tail = self.blocks.pop(0)
         head = self.blocks[-1]
         self.gridContainer.move_block(tail, head.x + next_step.x, head.y + next_step.y)
+        tail.headingDir = next_step
         tail.direction = next_step.getDirection()
         tail.sbType = ESnakeBlockType.head
-        head.sbType = ESnakeBlockType.body
+
+
+        #Snake block orientation code, clusterfuck written by trial and error, do not edit
+        self.blocks[0].sbType = ESnakeBlockType.tail
+        self.blocks[0].direction = self.blocks[1].headingDir.getDirection()
+
+        if(self.blocks[-1].direction == tail.direction):
+            head.sbType = ESnakeBlockType.body
+        else:
+            head.sbType = ESnakeBlockType.bodyAngle
+
+            if(self.blocks[-1].direction == 0):
+                if(next_step == EMoveDirection.left):
+                    self.blocks[-1].direction = 180
+                elif(next_step == EMoveDirection.right):
+                    self.blocks[-1].direction = 90
+            elif(self.blocks[-1].direction == 90):
+                if(next_step == EMoveDirection.up):
+                    self.blocks[-1].direction = 180
+                elif(next_step == EMoveDirection.down):
+                    self.blocks[-1].direction = 270
+            elif (self.blocks[-1].direction == 180):
+                if (next_step == EMoveDirection.right):
+                    self.blocks[-1].direction = 0
+                elif(next_step == EMoveDirection.left):
+                    self.blocks[-1].direction = 270
+            elif (self.blocks[-1].direction == 270):
+                if (next_step == EMoveDirection.down):
+                    self.blocks[-1].direction = 0
+                elif(next_step == EMoveDirection.up):
+                    self.blocks[-1].direction = 90
+
         self.blocks.append(tail)
         self.lastStepDirection = next_step
         return True
