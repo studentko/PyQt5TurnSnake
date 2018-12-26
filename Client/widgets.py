@@ -1,5 +1,6 @@
+from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import QWidget, QSizePolicy
-from PyQt5.QtGui import QImage, QPainter
+from PyQt5.QtGui import QImage, QPainter, QBrush, QColor
 from GameMechanic.BaseBlock import *
 
 class MainWidget(QWidget):
@@ -30,14 +31,16 @@ class BlockWidget(QWidget):
 
     def paintEvent(self, event):
         p = QPainter(self)
-        r = event.rect()
+        r: QRect = event.rect()
 
         for i in self.texEnums:
             if(isinstance(i, BaseBlock)):
                 p.translate(r.width() / 2, r.height() / 2)
+                if(i.direction == 90 or i.direction == 270):
+                    r.setRect(0, 0, r.height(), r.width())
                 p.rotate(i.direction)
                 p.translate(-r.width() / 2, -r.height() / 2)
-                p.drawImage(r.x(), r.y(), self.imgs[i.getDrawable()])
+                p.drawImage(r, self.imgs[i.getDrawable()])
             else:
                 p.drawImage(r.x(), r.y(), self.imgs[i])
 
