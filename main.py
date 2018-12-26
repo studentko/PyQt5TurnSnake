@@ -30,5 +30,5 @@ if __name__=="__main__":
         lc.gridContainer.debug_grid_print()
     """
 
-    srv = Server()
+    srv = Server(GameConfig())
     srv.start_server()

@@ -7,7 +7,10 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.bckimg = QImage("Client\pozadina.png")
+        self.bckimg = QImage("Client\\imgs\\pozadina.png")
+
+    def resizeEvent(self, QResizeEvent):
+        self.resize(min(self.width(), self.height()), min(self.width(), self.height()))
 
 
     def paintEvent(self, event):
@@ -19,10 +22,11 @@ class MainWidget(QWidget):
 
 
 class BlockWidget(QWidget):
-    def __init__(self, imgs):
+    def __init__(self, imgs, masks):
         super().__init__()
         self.texEnums = []
         self.imgs = imgs
+        self.masks = masks
 
 
     def setTextures(self, texEnums):
@@ -34,6 +38,9 @@ class BlockWidget(QWidget):
         r: QRect = event.rect()
 
         for i in self.texEnums:
+
+            p.resetTransform()
+
             if(isinstance(i, BaseBlock)):
                 p.translate(r.width() / 2, r.height() / 2)
                 if(i.direction == 90 or i.direction == 270):
@@ -41,6 +48,8 @@ class BlockWidget(QWidget):
                 p.rotate(i.direction)
                 p.translate(-r.width() / 2, -r.height() / 2)
                 p.drawImage(r, self.imgs[i.getDrawable()])
+                if(i.color != EColor.none):
+                    p.drawImage(r, self.masks[i.color][i.getDrawable()])
             else:
-                p.drawImage(r.x(), r.y(), self.imgs[i])
+                p.drawImage(r, self.imgs[i])
 
