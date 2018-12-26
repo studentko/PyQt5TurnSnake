@@ -73,6 +73,7 @@ class LevelController:
         has_next = False
         for m in self.movables:
             has_next = m.make_step() or has_next
+        self.collision_resolve()
         return has_next
 
     def has_turn_step(self):
@@ -80,3 +81,19 @@ class LevelController:
             if m.has_steps():
                 return True
         return False
+
+    def collision_resolve(self):
+        for x in self.gridContainer.blockMatrix:
+            for cellset in x:
+                if len(cellset) > 1:
+                    walls = set()
+                    snakeBlocks = set()
+                    for block in cellset:
+                        if isinstance(block, WallBlock):
+                            walls.add(block)
+                        if isinstance(block, SnakeBlock):
+                            snakeBlocks.add(block)
+                    if len(walls) > 0:
+                        for sb in snakeBlocks:
+                            sb.parentSnake.kill()
+
