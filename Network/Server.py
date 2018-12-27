@@ -4,6 +4,7 @@ import sys
 import base64
 from .NetworkCommand import *
 from Network.GridContainerUpdate import *
+from Network.GreetingData import *
 from GameMechanic.LevelController import *
 from GameMechanic.GameConfig import *
 from time import sleep
@@ -29,7 +30,9 @@ class Server:
         while len(self.clients) < self.gameConfig.playerNumber:
             c, addr = self.socket.accept()
             print('connection from ', addr)
-            send_command_to_socket(NetworkCommand(ENetworkCommand.greeting, len(self.clients)), c)
+            greetingData = GreetingData(len(self.clients), self.levelController.gridContainer.width,
+                                        self.levelController.gridContainer.height)
+            send_command_to_socket(NetworkCommand(ENetworkCommand.greeting, greetingData), c)
             self.clients.append(c)
 
     def send_command(self, networkCommand):
