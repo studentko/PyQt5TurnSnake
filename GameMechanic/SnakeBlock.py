@@ -12,7 +12,7 @@ class SnakeBlock(BaseBlock):
         self.headingDir = 0
 
     def getDrawable(self):
-        return EDrawable(int(self.sbType))
+        return EDrawable(int(self.sbType - 1))
 
 
 class ESnakeBlockType(IntEnum):

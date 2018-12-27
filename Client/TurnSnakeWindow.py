@@ -6,6 +6,7 @@ from PyQt5.Qt import *
 from Client.Dialogs import JoinDialog, HostDialog
 from Client.listener import Listener
 from GameMechanic.GameConfig import GameConfig
+from Network.GreetingData import GreetingData
 from Network.GridContainerUpdate import *
 from Network.MovingPlans import *
 from Client.widgets import *
@@ -17,8 +18,8 @@ class TurnSnakeWindow(QMainWindow):
         super().__init__()
 
         #TEMP dinamicka promena velicine
-        self.gridWidth = 15
-        self.gridHeigth = 15
+        self.gridWidth = 5
+        self.gridHeigth = 5
         self.gridBlockSize = 50
 
         self.planingPhase = False
@@ -34,6 +35,7 @@ class TurnSnakeWindow(QMainWindow):
 
     def setListener(self, listener):
         listener.update.connect(self.update)
+        listener.resize.connect(self.resizeBoard)
 
 
     def startPlaning(self, seconds):
@@ -108,15 +110,16 @@ class TurnSnakeWindow(QMainWindow):
         self.resize(self.gridWidth * self.gridBlockSize, self.gridHeigth * self.gridBlockSize)
         self.show()
 
-        #TEMP should be done by listener
-        self.resizeBoard(self.gridWidth, self.gridHeigth)
 
 
-    @pyqtSlot(int, int)
-    def resizeBoard(self, x, y):
+    @pyqtSlot(GreetingData)
+    def resizeBoard(self, gd: GreetingData):
+        self.resizeBoardXY(gd.gridWidth, gd.gridHeight)
+
+    def resizeBoardXY(self, x, y):
 
         self.gridWidth = x
-        self.gridWidth = y
+        self.gridHeigth = y
 
         self.blockGrid = []
         for i in range(0, self.gridWidth):
@@ -181,12 +184,13 @@ class TurnSnakeWindow(QMainWindow):
     def loadTextures(self):
         self.imgs = []
         self.imgsRaw = []
-        self.imgsRaw.append(QImage("Client\\imgs\\hrana1.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\head.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\telo.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\rep.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\spoj.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\prepreka.png"))
+        self.imgsRaw.append(QImage("Client\\imgs\\hrana1.png"))
+        self.imgsRaw.append(QImage("Client\\imgs\\hrana1.png"))
         self.imgsRaw.append(QImage("Client\\imgs\\kretanje.png"))
 
         self.masks = []
@@ -195,49 +199,55 @@ class TurnSnakeWindow(QMainWindow):
         self.masksRaw.append([])
         self.masks.append([])
 
-        self.masksRaw[0].append(QImage("Client\\masks\\hrana1.png"))
+
         self.masksRaw[0].append(QImage("Client\\masks\\head.png"))
         self.masksRaw[0].append(QImage("Client\\masks\\telo.png"))
         self.masksRaw[0].append(QImage("Client\\masks\\rep.png"))
         self.masksRaw[0].append(QImage("Client\\masks\\spoj.png"))
         self.masksRaw[0].append(QImage("Client\\masks\\prepreka.png"))
+        self.masksRaw[0].append(QImage("Client\\masks\\hrana1.png"))
+        self.masksRaw[0].append(QImage("Client\\masks\\hrana1.png"))
 
         self.masksRaw.append([])
         self.masks.append([])
 
-        self.masksRaw[1].append(QImage("Client\\masks\\red\\hrana1.png"))
         self.masksRaw[1].append(QImage("Client\\masks\\red\\head.png"))
         self.masksRaw[1].append(QImage("Client\\masks\\red\\telo.png"))
         self.masksRaw[1].append(QImage("Client\\masks\\red\\rep.png"))
         self.masksRaw[1].append(QImage("Client\\masks\\red\\spoj.png"))
         self.masksRaw[1].append(QImage("Client\\masks\\red\\prepreka.png"))
+        self.masksRaw[1].append(QImage("Client\\masks\\red\\hrana1.png"))
+        self.masksRaw[1].append(QImage("Client\\masks\\red\\hrana1.png"))
 
         self.masksRaw.append([])
         self.masks.append([])
 
-        self.masksRaw[2].append(QImage("Client\\masks\\blue\\hrana1.png"))
         self.masksRaw[2].append(QImage("Client\\masks\\blue\\head.png"))
         self.masksRaw[2].append(QImage("Client\\masks\\blue\\telo.png"))
         self.masksRaw[2].append(QImage("Client\\masks\\blue\\rep.png"))
         self.masksRaw[2].append(QImage("Client\\masks\\blue\\spoj.png"))
         self.masksRaw[2].append(QImage("Client\\masks\\blue\\prepreka.png"))
+        self.masksRaw[2].append(QImage("Client\\masks\\blue\\hrana1.png"))
+        self.masksRaw[2].append(QImage("Client\\masks\\blue\\hrana1.png"))
 
         self.masksRaw.append([])
         self.masks.append([])
 
-        self.masksRaw[3].append(QImage("Client\\masks\\yellow\\hrana1.png"))
         self.masksRaw[3].append(QImage("Client\\masks\\yellow\\head.png"))
         self.masksRaw[3].append(QImage("Client\\masks\\yellow\\telo.png"))
         self.masksRaw[3].append(QImage("Client\\masks\\yellow\\rep.png"))
         self.masksRaw[3].append(QImage("Client\\masks\\yellow\\spoj.png"))
         self.masksRaw[3].append(QImage("Client\\masks\\yellow\\prepreka.png"))
+        self.masksRaw[3].append(QImage("Client\\masks\\yellow\\hrana1.png"))
+        self.masksRaw[3].append(QImage("Client\\masks\\yellow\\hrana1.png"))
 
         self.masksRaw.append([])
         self.masks.append([])
 
-        self.masksRaw[4].append(QImage("Client\\masks\\purple\\hrana1.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\head.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\telo.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\rep.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\spoj.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\prepreka.png"))
+        self.masksRaw[4].append(QImage("Client\\masks\\purple\\hrana1.png"))
+        self.masksRaw[4].append(QImage("Client\\masks\\purple\\hrana1.png"))

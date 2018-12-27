@@ -3,11 +3,13 @@ from Network.Client import *
 from Network.NetworkCommand import ENetworkCommand
 from Client.TurnSnakeWindow import *
 from Network.GridContainerUpdate import *
+from Network.GreetingData import *
 
 class Listener(QObject):
 
     finished = pyqtSignal()
     update = pyqtSignal(GridContainerUpdate)
+    resize = pyqtSignal(GreetingData)
 
     def __init__(self, tsWin, address, port):
         super().__init__()
@@ -48,7 +50,7 @@ class Listener(QObject):
         while True:
             command = client.get_command()
             if(command.comm == ENetworkCommand.greeting):
-                self.playerId = command.data
+                self.resize.emit(command.data)
             elif(command.comm == ENetworkCommand.container_update):
                 self.update.emit(command.data)
                 self.snakes = command.data.snakes

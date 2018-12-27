@@ -18,15 +18,14 @@ class BaseBlock:
 
 class EDrawable(IntEnum):
     Default = -1
-    Food1 = 0
-    Head = 1
-    Body = 2
-    Tail = 3
-    BodyAnble = 4
-    Wall = 5
-    MovePoint = 6
-    FoodStep = 7
-    FoodSnake = 8
+    Head = 0
+    Body = 1
+    Tail = 2
+    BodyAnble = 3
+    Wall = 4
+    FoodStep = 5
+    FoodSnake = 6
+    MovePoint = 7
 
 
 class EColor(IntEnum):
