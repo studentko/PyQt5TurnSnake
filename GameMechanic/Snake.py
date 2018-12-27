@@ -14,6 +14,7 @@ class Snake(MovableObject):
         self.lastStepDirection = moveDirection
         self.snakeColor = snakeColor
         self.lives = 1
+        self.parentPlayer = None
 
         for i in range(length):
             sb = SnakeBlock(self)
@@ -73,7 +74,7 @@ class Snake(MovableObject):
         return True
 
     def has_steps(self):
-        return self.lives > 0 and super().has_steps()
+        return self.lives > 0 and super(Snake, self).has_steps()
 
     def get_head(self) -> SnakeBlock:
         return self.blocks[-1]
@@ -83,3 +84,4 @@ class Snake(MovableObject):
             self.gridContainer.remove_block(block)
         self.lives = 0
         self.moveSteps = []
+        self.parentPlayer.remove_snake(self)
