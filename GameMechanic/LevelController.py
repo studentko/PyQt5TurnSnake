@@ -96,4 +96,8 @@ class LevelController:
                     if len(walls) > 0:
                         for sb in snakeBlocks:
                             sb.parentSnake.kill()
+                    elif len(snakeBlocks) >= 2:
+                        for sb in snakeBlocks:
+                            if (sb.sbType == ESnakeBlockType.head):
+                                sb.parentSnake.kill()
 
