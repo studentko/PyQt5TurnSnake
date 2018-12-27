@@ -2,15 +2,18 @@ from PyQt5.QtCore import QThread
 from Network.Client import *
 from Network.NetworkCommand import ENetworkCommand
 from Client.TurnSnakeWindow import *
+from Network.GridContainerUpdate import *
 
 class Listener(QObject):
 
     finished = pyqtSignal()
     update = pyqtSignal(GridContainerUpdate)
 
-    def __init__(self, tsWin: TurnSnakeWindow):
+    def __init__(self, tsWin, address, port):
         super().__init__()
         self.tsWin = tsWin
+        self.address = address
+        self.port = port
     
         self.snakes = []
 
@@ -27,11 +30,18 @@ class Listener(QObject):
     def start(self):
         # Start the thread
         self.thread.start()
+        print("Thread_Start")
+
+    def stop(self):
+        self.thread.terminate()
 
 
     @pyqtSlot()
     def run(self):
-        client = Client("localhost", 12355)
+
+        print("Thread_Running")
+
+        client = Client(self.address, self.port)
 
         client.connect()
 
