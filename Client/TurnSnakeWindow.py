@@ -2,9 +2,14 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QWidget, QGridLayout
 from PyQt5.QtGui import QPixmap, QPainter, QImage
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.Qt import *
+
+from Client.Dialogs import JoinDialog, HostDialog
+from Client.listener import Listener
+from GameMechanic.GameConfig import GameConfig
 from Network.GridContainerUpdate import *
 from Network.MovingPlans import *
 from Client.widgets import *
+from  Network.serverstarter import start_server_process, stop_server_process
 
 class TurnSnakeWindow(QMainWindow):
 
@@ -21,6 +26,8 @@ class TurnSnakeWindow(QMainWindow):
         self.snakes = []
 
         self.loadTextures()
+
+        self.listener = None
 
         self.__initUI__()
 
@@ -79,12 +86,37 @@ class TurnSnakeWindow(QMainWindow):
 
     def __initUI__(self):
 
+        menu = self.menuBar().addMenu("Game")
+
+        joinAct = QAction("&Join", self)
+        joinAct.triggered.connect(self.join)
+
+        hostAct = QAction("&Host", self)
+        hostAct.triggered.connect(self.host)
+
+        menu.addAction(joinAct)
+        menu.addAction(hostAct)
+
         centerWidget = MainWidget()
         self.setCentralWidget(centerWidget)
 
         self.grid = QGridLayout()
         centerWidget.setLayout(self.grid)
         self.grid.setSpacing(0)
+
+        self.setWindowTitle("Turn Snake")
+        self.resize(self.gridWidth * self.gridBlockSize, self.gridHeigth * self.gridBlockSize)
+        self.show()
+
+        #TEMP should be done by listener
+        self.resizeBoard(self.gridWidth, self.gridHeigth)
+
+
+    @pyqtSlot(int, int)
+    def resizeBoard(self, x, y):
+
+        self.gridWidth = x
+        self.gridWidth = y
 
         self.blockGrid = []
         for i in range(0, self.gridWidth):
@@ -94,9 +126,34 @@ class TurnSnakeWindow(QMainWindow):
                 self.blockGrid[i].append(block)
                 self.grid.addWidget(block, i, j)
 
-        self.setWindowTitle("Turn Snake")
         self.resize(self.gridWidth * self.gridBlockSize, self.gridHeigth * self.gridBlockSize)
-        self.show()
+
+
+    def join(self):
+        dialog = JoinDialog(self)
+        dialog.exec()
+
+
+    def joinPressed(self, address, port):
+        self.listener = Listener(self, address, port)
+        self.listener.start()
+
+        self.setListener(self.listener)
+
+    def host(self):
+        dialog = HostDialog(self)
+        dialog.exec()
+
+    def hostPressed(self, port, gameconfig):
+        start_server_process(gameconfig, port)
+        self.joinPressed("localhost", port)
+
+
+    def closeEvent(self, *args, **kwargs):
+        if(self.listener is not None):
+            self.listener.stop()
+
+        stop_server_process()
         
     
     def resizeEvent(self, event):
@@ -184,4 +241,3 @@ class TurnSnakeWindow(QMainWindow):
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\rep.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\spoj.png"))
         self.masksRaw[4].append(QImage("Client\\masks\\purple\\prepreka.png"))
-

@@ -1,6 +1,6 @@
 class GameConfig:
     def __init__(self):
-        self.playerNumber = 1
+        self.playerNumber = 2
         self.snakeNumber = 2
         self.snakeSize = 4
         self.snakeSteps = 6
