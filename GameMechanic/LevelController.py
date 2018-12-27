@@ -1,6 +1,8 @@
 from GameMechanic.Snake import *
 from GameMechanic.Player import *
 from GameMechanic.WallBlock import *
+from GameMechanic.Food import *
+from random import randrange
 
 class LevelController:
     def __init__(self, gameConfig):
@@ -10,6 +12,8 @@ class LevelController:
         self.players = []
         # self.add_test_data()
         self.init_board()
+        self.foods = []
+        self.foodSpawnTurn = randrange(1, 2)
 
     def add_test_data(self):
         snake = Snake(self.gridContainer, 3, 3, 5, 8, EMoveDirection.right)
@@ -69,12 +73,32 @@ class LevelController:
 
             self.players.append(player)
 
+    def prepare_turn(self):
+        for food in self.foods:
+            food.prepare_turn()
+
     def make_turn_step(self):
         has_next = False
         for m in self.movables:
             has_next = m.make_step() or has_next
         self.collision_resolve()
         return has_next
+
+    def complete_turn(self):
+        self.foodSpawnTurn = self.foodSpawnTurn - 1
+        if self.foodSpawnTurn <= 0:
+            self.foodSpawnTurn = randrange(1, 2)
+            tries = 0
+            while ++tries < 10:
+                x = randrange(0, self.gridContainer.width + 1)
+                y = randrange(0, self.gridContainer.height + 1)
+                if not self.gridContainer.has_blocks(x, y):
+                    food = Food(self.gridContainer)
+                    self.gridContainer.move_block(food.block, x, y)
+                    self.movables.append(food)
+                    self.foods.append(food)
+                    return True
+        return False
 
     def has_turn_step(self):
         for m in self.movables:
@@ -88,11 +112,14 @@ class LevelController:
                 if len(cellset) > 1:
                     walls = set()
                     snakeBlocks = set()
+                    foodBlocks = set()
                     for block in cellset:
                         if isinstance(block, WallBlock):
                             walls.add(block)
                         if isinstance(block, SnakeBlock):
                             snakeBlocks.add(block)
+                        if isinstance(block, FoodBlock):
+                            foodBlocks.add(block)
                     if len(walls) > 0:
                         for sb in snakeBlocks:
                             sb.parentSnake.kill()
@@ -100,4 +127,12 @@ class LevelController:
                         for sb in snakeBlocks:
                             if (sb.sbType == ESnakeBlockType.head):
                                 sb.parentSnake.kill()
-
+                    elif len(foodBlocks) > 0 and len(snakeBlocks) == 1:
+                        sb = snakeBlocks.pop()
+                        if sb.sbType == ESnakeBlockType.head:
+                            # TODO: implement effect on snake when food is eaten
+                            pass
+                    for fb in foodBlocks:
+                        self.movables.remove(fb.parent)
+                        self.foods.remove(fb.parent)
+                        fb.parent.kill()

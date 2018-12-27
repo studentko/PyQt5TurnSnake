@@ -27,3 +27,8 @@ class GridContainer:
     def remove_block(self, baseBlock):
         if baseBlock.x >= 0 and baseBlock.y >= 0:
             self.blockMatrix[baseBlock.y][baseBlock.x].remove(baseBlock)
+
+    def has_blocks(self, x, y):
+        x = x % self.width
+        y = y % self.height
+        return len(self.blockMatrix[x][y]) > 0

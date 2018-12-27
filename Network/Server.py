@@ -51,11 +51,14 @@ class Server:
             self.get_plans_from_clients()
 
             self.send_command(NetworkCommand(ENetworkCommand.update_start, None))
+            self.levelController.prepare_turn()
             while self.levelController.has_turn_step():
                 self.levelController.make_turn_step()
                 # self.send_command(NetworkCommand(ENetworkCommand.container_update, self.levelController.gridContainer))
                 self.send_grid_update()
                 sleep(0.2)
+            if self.levelController.complete_turn():
+                self.send_grid_update()
             self.send_command(NetworkCommand(ENetworkCommand.update_end, None))
 
     def send_grid_update(self):

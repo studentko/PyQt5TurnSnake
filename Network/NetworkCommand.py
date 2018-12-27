@@ -29,7 +29,7 @@ def send_command_to_socket(networkCommand, socket):
         bytes_size = size.to_bytes(4, byteorder='little')
         bytes_size = bytes_size
         # bytes_size = base64.encodebytes(size)
-        print("pickle size: ", size, "|", bytes_size)
+        print("sending: ", networkCommand.comm, " | size: ", bytes_size)
         send_data(socket, bytes_size, 4)
         sleep(0.1)
         send_data(socket, pickled, size)
@@ -38,10 +38,9 @@ def get_command_from_socket(sock):
         size_bytes = receive_data(sock, 4)
         size = int.from_bytes(size_bytes, byteorder='little')
         # size = 8192
-        print("pickle size to get: ", size, "|", size_bytes)
         base64comm = receive_data(sock, size)
-        print("================ PRIMIO: ", len(base64comm))
         networkCommand = pickle.loads(base64.decodebytes(base64comm))
+        print("received: ", networkCommand.comm, " | size: ", size_bytes)
         return networkCommand
 
 def receive_data(sock, datalen):
