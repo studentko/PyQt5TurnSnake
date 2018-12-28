@@ -17,7 +17,6 @@ class TurnSnakeWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        #TEMP dinamicka promena velicine
         self.gridWidth = 5
         self.gridHeigth = 5
         self.gridBlockSize = 50
