@@ -2,6 +2,7 @@ from .GridContainer import *
 from .SnakeBlock import *
 
 from GameMechanic.MovableObject import *
+from GameMechanic.FoodBlock import EFoodType
 
 
 class Snake(MovableObject):
@@ -15,6 +16,7 @@ class Snake(MovableObject):
         self.snakeColor = snakeColor
         self.lives = 1
         self.parentPlayer = None
+        self.extend = 0
 
         for i in range(length):
             sb = SnakeBlock(self)
@@ -31,7 +33,15 @@ class Snake(MovableObject):
         if len(self.moveSteps) <= 0 or self.lives <= 0:
             return False
         next_step = self.moveSteps.pop(0)
-        tail = self.blocks.pop(0)
+
+        tail = None
+        if self.extend > 0:
+            tail = SnakeBlock(self)
+            tail.color = self.snakeColor
+            self.extend = self.extend - 1
+        else:
+            tail = self.blocks.pop(0)
+
         head = self.blocks[-1]
         self.gridContainer.move_block(tail, head.x + next_step.x, head.y + next_step.y)
         tail.headingDir = next_step
@@ -85,3 +95,10 @@ class Snake(MovableObject):
         self.lives = 0
         self.moveSteps = []
         self.parentPlayer.remove_snake(self)
+
+    def eat_food(self, food):
+        if food.foodType == EFoodType.step_extender:
+            self.steps = self.steps + 1
+        else:
+            self.extend = self.extend + 1
+

@@ -130,8 +130,9 @@ class LevelController:
                     elif len(foodBlocks) > 0 and len(snakeBlocks) == 1:
                         sb = snakeBlocks.pop()
                         if sb.sbType == ESnakeBlockType.head:
-                            # TODO: implement effect on snake when food is eaten
-                            pass
+                            snake = sb.parentSnake
+                            for fb in foodBlocks:
+                                snake.eat_food(fb.parent)
                     for fb in foodBlocks:
                         self.movables.remove(fb.parent)
                         self.foods.remove(fb.parent)
