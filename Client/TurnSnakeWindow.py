@@ -64,16 +64,17 @@ class TurnSnakeWindow(QMainWindow):
             if(event.key() == Qt.Key_Tab):
                 self.selectedSnakeIndex = (self.selectedSnakeIndex + 1) % len(self.snakes)
             else:
-                snake = self.snakes[self.selectedSnakeIndex]
-                plan = self.moveingPlans.get_plan(snake)
-                if(event.key() == Qt.Key_D):
-                    self.addPlanPoint(EMoveDirection.right, plan, snake)
-                elif(event.key() == Qt.Key_W):
-                    self.addPlanPoint(EMoveDirection.down, plan, snake)
-                elif(event.key() == Qt.Key_A):
-                    self.addPlanPoint(EMoveDirection.left, plan, snake)
-                elif(event.key() == Qt.Key_S):
-                    self.addPlanPoint(EMoveDirection.up, plan, snake)
+                if(len(self.snakes) > 0):
+                    snake = self.snakes[self.selectedSnakeIndex]
+                    plan = self.moveingPlans.get_plan(snake)
+                    if(event.key() == Qt.Key_D):
+                        self.addPlanPoint(EMoveDirection.right, plan, snake)
+                    elif(event.key() == Qt.Key_W):
+                        self.addPlanPoint(EMoveDirection.down, plan, snake)
+                    elif(event.key() == Qt.Key_A):
+                        self.addPlanPoint(EMoveDirection.left, plan, snake)
+                    elif(event.key() == Qt.Key_S):
+                        self.addPlanPoint(EMoveDirection.up, plan, snake)
 
 
     def addPlanPoint(self, moveDir, plan, snake):
@@ -205,7 +206,10 @@ class TurnSnakeWindow(QMainWindow):
     @pyqtSlot(GridContainerUpdate)
     def update(self, gc: GridContainerUpdate):
         self.snakes = gc.snakes
-        self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
+        if(len(self.snakes) > 0):
+            self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
+        else:
+            self.playerColorLabel.setText("Player: dead")
         for i in range(0, self.gridWidth):
             for j in range(0, self.gridHeigth):
                 self.blockGrid[i][j].setTextures(gc.gridContainer.blockMatrix[i][j])
