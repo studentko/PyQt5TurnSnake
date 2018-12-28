@@ -21,6 +21,12 @@ class TurnSnakeWindow(QMainWindow):
         self.gridHeigth = 5
         self.gridBlockSize = 50
 
+        self.turnTime = 0.0
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(False)
+        self.timer.timeout.connect(self.updateTimer)
+        self.timer.start(100)
+
         self.planingPhase = False
         self.selectedSnakeIndex = -1
         self.snakes = []
@@ -38,6 +44,7 @@ class TurnSnakeWindow(QMainWindow):
 
 
     def startPlaning(self, seconds):
+        self.turnTime = seconds
         self.planingPhase = True
         self.moveingPlans = MovingPlans()
         self.snakeMoveLocation = []
@@ -98,11 +105,34 @@ class TurnSnakeWindow(QMainWindow):
         menu.addAction(joinAct)
         menu.addAction(hostAct)
 
-        centerWidget = MainWidget()
+        centerWidget = QWidget(self)
         self.setCentralWidget(centerWidget)
+        mainLayout = QHBoxLayout(centerWidget)
+        mainLayout.setSpacing(0)
+        mainLayout.setContentsMargins(0, 0, 0, 0)
+        centerWidget.setLayout(mainLayout)
+
+
+        self.gridWidget = MainWidget()
+        mainLayout.addWidget(self.gridWidget)
+
+        self.uiWidget = QWidget(self)
+        self.uiWidget.setFixedWidth(100)
+        self.uiWidget.setFixedHeight(100)
+        mainLayout.addWidget(self.uiWidget)
+
+        self.uiGrid = QVBoxLayout(self)
+        self.uiGrid.setAlignment(Qt.AlignTop)
+        self.uiWidget.setLayout(self.uiGrid)
+
+        self.playerColorLabel = QLabel(self)
+        self.uiGrid.addWidget(self.playerColorLabel)
+
+        self.turnTimerLabel = QLabel(self)
+        self.uiGrid.addWidget(self.turnTimerLabel)
 
         self.grid = QGridLayout()
-        centerWidget.setLayout(self.grid)
+        self.gridWidget.setLayout(self.grid)
         self.grid.setSpacing(0)
 
         self.setWindowTitle("Turn Snake")
@@ -128,7 +158,7 @@ class TurnSnakeWindow(QMainWindow):
                 self.blockGrid[i].append(block)
                 self.grid.addWidget(block, i, j)
 
-        self.resize(self.gridWidth * self.gridBlockSize, self.gridHeigth * self.gridBlockSize)
+        self.resize(self.gridWidth * self.gridBlockSize + 80, self.gridHeigth * self.gridBlockSize)
 
 
     def join(self):
@@ -156,28 +186,38 @@ class TurnSnakeWindow(QMainWindow):
             self.listener.stop()
 
         stop_server_process()
+        self.timer.stop()
         
     
     def resizeEvent(self, event):
         self.imgs.clear()
         for i in self.imgsRaw:
-            self.imgs.append(i.scaled(self.width() // self.gridWidth, self.height() // self.gridHeigth, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+            self.imgs.append(i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeigth, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
         self.masks.clear()
         for col in self.masksRaw:
             nMasks = []
             for i in col:
-                nMasks.append(i.scaled(self.width() // self.gridWidth, self.height() // self.gridHeigth, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+                nMasks.append(i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeigth, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
             self.masks.append(nMasks)
 
 
     @pyqtSlot(GridContainerUpdate)
     def update(self, gc: GridContainerUpdate):
         self.snakes = gc.snakes
+        self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
         for i in range(0, self.gridWidth):
             for j in range(0, self.gridHeigth):
                 self.blockGrid[i][j].setTextures(gc.gridContainer.blockMatrix[i][j])
         self.repaint()
+
+
+    def updateTimer(self):
+        self.turnTime -= 0.1
+        if(self.turnTime < 0):
+            self.turnTime = 0.0
+
+        self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
 
 
     def loadTextures(self):
