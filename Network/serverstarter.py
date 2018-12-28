@@ -7,7 +7,7 @@ __server_process = None
 
 
 def server_main(gameConfig, port=12354, ip="0.0.0.0"):
-    server = Server(GameConfig())
+    server = Server(gameConfig)
     server.start_server()
 
 
