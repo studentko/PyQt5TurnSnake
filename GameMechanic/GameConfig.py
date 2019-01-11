@@ -5,3 +5,4 @@ class GameConfig:
         self.snakeSize = 4
         self.snakeSteps = 6
         self.turnPlanTime = 2
+        self.tournament = False

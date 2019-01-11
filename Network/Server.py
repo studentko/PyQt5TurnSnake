@@ -64,7 +64,10 @@ class Server:
 
             winner = self.levelController.who_is_winner()
             if winner > -1:
-                self.send_command(NetworkCommand(ENetworkCommand.game_end, GameEndData(winner)))
+                gameEndData = GameEndData(winner)
+                gameEndData.has_next_game = self.gameConfig.tournament
+                self.send_command(NetworkCommand(ENetworkCommand.game_end, gameEndData))
+                break;
 
     def send_grid_update(self):
         for i in range(len(self.clients)):
