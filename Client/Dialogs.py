@@ -5,16 +5,13 @@ from GameMechanic.GameConfig import GameConfig
 
 
 class JoinDialog(QDialog):
-
     def __init__(self, parent):
         super().__init__(parent)
         self.par = parent
 
         self.__initUI__()
 
-
     def __initUI__(self):
-
         layout = QVBoxLayout(self)
 
         self.setLayout(layout)
@@ -105,12 +102,11 @@ class HostDialog(QDialog):
         self.show()
 
     def btnPressed(self):
-
         conf = GameConfig()
 
         conf.playerNumber = int(self.input2.text())
         conf.snakeNumber = int(self.input3.text())
-        conf.snakeSize =  int(self.input4.text())
+        conf.snakeSize = int(self.input4.text())
         conf.snakeSteps = int(self.input5.text())
         conf.turnPlanTime = float(self.input6.text())
 

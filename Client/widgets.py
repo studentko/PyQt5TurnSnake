@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QSizePolicy
 from PyQt5.QtGui import QImage, QPainter, QBrush, QColor
 from GameMechanic.BaseBlock import *
 
+
 class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -11,7 +12,6 @@ class MainWidget(QWidget):
 
     def resizeEvent(self, QResizeEvent):
         self.resize(min(self.width(), self.height()), min(self.width(), self.height()))
-
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -29,10 +29,8 @@ class BlockWidget(QWidget):
         self.masks = masks
         self.drawFullColor = True
 
-
     def setTextures(self, texEnums):
         self.texEnums = texEnums
-
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -42,14 +40,14 @@ class BlockWidget(QWidget):
 
             p.resetTransform()
 
-            if(isinstance(i, BaseBlock)):
+            if (isinstance(i, BaseBlock)):
                 p.translate(r.width() / 2, r.height() / 2)
-                if(i.direction == 90 or i.direction == 270):
+                if (i.direction == 90 or i.direction == 270):
                     r.setRect(0, 0, r.height(), r.width())
                 p.rotate(i.direction)
                 p.translate(-r.width() / 2, -r.height() / 2)
                 p.drawImage(r, self.imgs[i.getDrawable()])
-                if(i.color != EColor.none):
+                if (i.color != EColor.none):
                     if not self.drawFullColor:
                         p.setOpacity(0.6)
                         p.drawImage(r, self.masks[i.color][i.getDrawable()])
@@ -58,4 +56,3 @@ class BlockWidget(QWidget):
                         p.drawImage(r, self.masks[i.color][i.getDrawable()])
             else:
                 p.drawImage(r, self.imgs[i])
-
