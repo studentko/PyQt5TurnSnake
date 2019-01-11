@@ -1,5 +1,5 @@
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QDialog, QLineEdit, QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QLineEdit, QLabel, QPushButton, QVBoxLayout, QCheckBox
 
 from GameMechanic.GameConfig import GameConfig
 
@@ -95,6 +95,10 @@ class HostDialog(QDialog):
         self.input6.setText("5.0")
         layout.addWidget(self.input6)
 
+        self.chbox = QCheckBox()
+        self.chbox.setText("Tournament")
+        layout.addWidget(self.chbox)
+
         self.button = QPushButton("Host")
         self.button.clicked.connect(self.btnPressed)
         layout.addWidget(self.button)
@@ -109,6 +113,7 @@ class HostDialog(QDialog):
         conf.snakeSize = int(self.input4.text())
         conf.snakeSteps = int(self.input5.text())
         conf.turnPlanTime = float(self.input6.text())
+        conf.tournament = self.chbox.isChecked()
 
         self.par.hostPressed(int(self.input1.text()), conf)
         self.close()

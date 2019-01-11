@@ -230,7 +230,7 @@ class TurnSnakeWindow(QMainWindow):
 
         self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
 
-        if self.planingPhase:
+        if self.planingPhase and len(self.snakes) > 0:
             snake = self.snakes[self.selectedSnakeIndex]
             drawsColor = self.blockGrid[snake.get_head().y][snake.get_head().x].drawFullColor
             self.setColorStatus(snake, not drawsColor)

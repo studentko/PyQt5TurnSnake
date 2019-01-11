@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QThread
 from Network.Client import *
+from Network.GameEndData import GameEndData
 from Network.NetworkCommand import ENetworkCommand
 from Client.TurnSnakeWindow import *
 from Network.GridContainerUpdate import *
@@ -58,3 +59,8 @@ class Listener(QObject):
                 self.status.emit("")
             elif (command.comm == ENetworkCommand.call_for_plans):
                 client.send_plans(self.tsWin.endPlaningAndGetPlans())
+            elif (command.comm == ENetworkCommand.game_end):
+                send = F"Player {command.data.winner} won!"
+                if command.data.has_next_game:
+                    send += "\nWaiting\nfor next game"
+                self.status.emit(send)
