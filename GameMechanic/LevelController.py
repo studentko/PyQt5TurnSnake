@@ -147,4 +147,6 @@ class LevelController:
             winner_index += 1
         if active_players == 1:
             return winner_index
+        if active_players == 0:
+            return 0
         return -1
