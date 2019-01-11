@@ -21,6 +21,8 @@ class TurnSnakeWindow(QMainWindow):
         self.gridHeigth = 5
         self.gridBlockSize = 50
 
+        self.gameRunnung = False
+
         self.turnTime = 0.0
         self.timer = QTimer(self)
         self.timer.setSingleShot(False)
@@ -41,6 +43,7 @@ class TurnSnakeWindow(QMainWindow):
     def setListener(self, listener):
         listener.update.connect(self.update)
         listener.resize.connect(self.resizeBoard)
+        listener.status.connect(self.setGameStatus)
 
 
     def startPlaning(self, seconds):
@@ -84,6 +87,8 @@ class TurnSnakeWindow(QMainWindow):
             plan.pop()
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
             pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
+        elif(len(plan) == 0 and moveDir.getOposite().getDirection() == snake.get_head().direction):
+            pass
         elif(len(plan) < snake.steps):
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
             pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
@@ -97,14 +102,14 @@ class TurnSnakeWindow(QMainWindow):
 
         menu = self.menuBar().addMenu("Game")
 
-        joinAct = QAction("&Join", self)
-        joinAct.triggered.connect(self.join)
+        self.joinAct = QAction("&Join", self)
+        self.joinAct.triggered.connect(self.join)
 
-        hostAct = QAction("&Host", self)
-        hostAct.triggered.connect(self.host)
+        self.hostAct = QAction("&Host", self)
+        self.hostAct.triggered.connect(self.host)
 
-        menu.addAction(joinAct)
-        menu.addAction(hostAct)
+        menu.addAction(self.joinAct)
+        menu.addAction(self.hostAct)
 
         centerWidget = QWidget(self)
         self.setCentralWidget(centerWidget)
@@ -131,6 +136,9 @@ class TurnSnakeWindow(QMainWindow):
 
         self.turnTimerLabel = QLabel(self)
         self.uiGrid.addWidget(self.turnTimerLabel)
+
+        self.gameStatusText = QLabel(self)
+        self.uiGrid.addWidget(self.gameStatusText)
 
         self.grid = QGridLayout()
         self.gridWidget.setLayout(self.grid)
@@ -173,6 +181,10 @@ class TurnSnakeWindow(QMainWindow):
 
         self.setListener(self.listener)
 
+        self.joinAct.setEnabled(False)
+        self.hostAct.setEnabled(False)
+        self.setGameStatus("Waiting\nfor players")
+
     def host(self):
         dialog = HostDialog(self)
         dialog.exec()
@@ -181,6 +193,9 @@ class TurnSnakeWindow(QMainWindow):
         start_server_process(gameconfig, port)
         self.joinPressed("localhost", port)
 
+        self.joinAct.setEnabled(False)
+        self.hostAct.setEnabled(False)
+        self.setGameStatus("Waiting\nfor players")
 
     def closeEvent(self, *args, **kwargs):
         if(self.listener is not None):
@@ -222,6 +237,10 @@ class TurnSnakeWindow(QMainWindow):
             self.turnTime = 0.0
 
         self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
+
+    @pyqtSlot(str)
+    def setGameStatus(self, text):
+        self.gameStatusText.setText(text)
 
 
     def loadTextures(self):

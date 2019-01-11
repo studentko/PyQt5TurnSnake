@@ -10,6 +10,7 @@ class Listener(QObject):
     finished = pyqtSignal()
     update = pyqtSignal(GridContainerUpdate)
     resize = pyqtSignal(GreetingData)
+    status = pyqtSignal(str)
 
     def __init__(self, tsWin, address, port):
         super().__init__()
@@ -56,5 +57,6 @@ class Listener(QObject):
                 self.snakes = command.data.snakes
             elif(command.comm == ENetworkCommand.turn_count_start):
                 self.tsWin.startPlaning(command.data)
+                self.status.emit("")
             elif(command.comm == ENetworkCommand.call_for_plans):
                 client.send_plans(self.tsWin.endPlaningAndGetPlans())
