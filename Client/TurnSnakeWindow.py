@@ -65,6 +65,7 @@ class TurnSnakeWindow(QMainWindow):
     def keyPressEvent(self, event: QKeyEvent):
         if(self.planingPhase):
             if(event.key() == Qt.Key_Tab):
+                self.setColorStatus(self.snakes[self.selectedSnakeIndex], True)
                 self.selectedSnakeIndex = (self.selectedSnakeIndex + 1) % len(self.snakes)
             else:
                 if(len(self.snakes) > 0):
@@ -221,6 +222,8 @@ class TurnSnakeWindow(QMainWindow):
     @pyqtSlot(GridContainerUpdate)
     def update(self, gc: GridContainerUpdate):
         self.snakes = gc.snakes
+        for snake in self.snakes:
+            self.setColorStatus(snake, True)
         if(len(self.snakes) > 0):
             self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
         else:
@@ -237,6 +240,16 @@ class TurnSnakeWindow(QMainWindow):
             self.turnTime = 0.0
 
         self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
+
+        if self.planingPhase:
+            snake = self.snakes[self.selectedSnakeIndex]
+            drawsColor = self.blockGrid[snake.get_head().y][snake.get_head().x].drawFullColor
+            self.setColorStatus(snake, not drawsColor)
+
+    def setColorStatus(self, snake, val):
+        for block in snake.blocks:
+            self.blockGrid[block.y][block.x].drawFullColor = val
+            self.blockGrid[block.y][block.x].repaint()
 
     @pyqtSlot(str)
     def setGameStatus(self, text):

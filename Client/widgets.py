@@ -27,6 +27,7 @@ class BlockWidget(QWidget):
         self.texEnums = []
         self.imgs = imgs
         self.masks = masks
+        self.drawFullColor = True
 
 
     def setTextures(self, texEnums):
@@ -49,7 +50,12 @@ class BlockWidget(QWidget):
                 p.translate(-r.width() / 2, -r.height() / 2)
                 p.drawImage(r, self.imgs[i.getDrawable()])
                 if(i.color != EColor.none):
-                    p.drawImage(r, self.masks[i.color][i.getDrawable()])
+                    if not self.drawFullColor:
+                        p.setOpacity(0.6)
+                        p.drawImage(r, self.masks[i.color][i.getDrawable()])
+                        p.setOpacity(1)
+                    else:
+                        p.drawImage(r, self.masks[i.color][i.getDrawable()])
             else:
                 p.drawImage(r, self.imgs[i])
 
