@@ -137,3 +137,14 @@ class LevelController:
                         self.movables.remove(fb.parent)
                         self.foods.remove(fb.parent)
                         fb.parent.kill()
+
+    def who_is_winner(self):
+        active_players = 0
+        winner_index = -1
+        for p in self.players:
+            if len(p.snakes) > 0:
+                active_players += + 1
+            winner_index += 1
+        if active_players == 1:
+            return winner_index
+        return -1

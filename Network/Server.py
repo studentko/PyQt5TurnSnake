@@ -5,6 +5,7 @@ import base64
 from .NetworkCommand import *
 from Network.GridContainerUpdate import *
 from Network.GreetingData import *
+from Network.GameEndData import *
 from GameMechanic.LevelController import *
 from GameMechanic.GameConfig import *
 from time import sleep
@@ -60,6 +61,10 @@ class Server:
             if self.levelController.complete_turn():
                 self.send_grid_update()
             self.send_command(NetworkCommand(ENetworkCommand.update_end, None))
+
+            winner = self.levelController.who_is_winner()
+            if winner > -1:
+                self.send_command(NetworkCommand(ENetworkCommand.game_end, GameEndData(winner)))
 
     def send_grid_update(self):
         for i in range(len(self.clients)):

@@ -13,6 +13,7 @@ class ENetworkCommand(Enum):
     call_for_plans = 5
     update_start = 6
     update_end = 7
+    game_end = 8
 
 
 class NetworkCommand:
