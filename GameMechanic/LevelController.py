@@ -15,6 +15,7 @@ class LevelController:
         self.init_board()
         self.foods = []
         self.foodSpawnTurn = randrange(1, 2)
+        self.foodblockprocessbind = dict()
 
     def add_test_data(self):
         snake = Snake(self.gridContainer, 3, 3, 5, 8, EMoveDirection.right)
@@ -76,10 +77,6 @@ class LevelController:
 
     def prepare_turn(self):
         for food in self.foods:
-            if food.is_killed():
-                food.kill()
-                self.foods.remove(food)
-            else:
                 food.prepare_turn()
 
     def make_turn_step(self):
@@ -102,6 +99,9 @@ class LevelController:
                     self.gridContainer.move_block(food.food.block, x, y)
                     self.movables.append(food)
                     self.foods.append(food)
+                    self.foodblockprocessbind[food.food.block] = food
+
+                    food.start_process()
                     return True
         return False
 
@@ -139,10 +139,12 @@ class LevelController:
                             for fb in foodBlocks:
                                 snake.eat_food(fb.parent)
                     for fb in foodBlocks:
-                        self.movables.remove(fb.parent)
+                        pass
                         # TODO: fix it later
-                        # self.foods.remove(fb.parent)
-                        fb.parent.kill()
+                        parent = self.foodblockprocessbind[fb]
+                        self.movables.remove(parent)
+                        self.foods.remove(parent)
+                        parent.kill()
 
     def who_is_winner(self):
         active_players = 0
