@@ -10,6 +10,7 @@ class Food(MovableObject):
         self.foodType = EFoodType(randrange(1, 3))
         self.block = FoodBlock(self.foodType, self)
         self.lastStepDirection = None
+        self.killed = False
 
     def make_step(self):
         if len(self.moveSteps) <= 0:
@@ -47,3 +48,4 @@ class Food(MovableObject):
 
     def kill(self):
         self.gridContainer.remove_block(self.block)
+        self.killed = True

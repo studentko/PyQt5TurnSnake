@@ -12,9 +12,9 @@ from time import sleep
 
 
 class Server:
-    def __init__(self, gameConfig):
-        self.ip = "0.0.0.0"
-        self.port = 12355
+    def __init__(self, gameConfig, port=12355, ip="0.0.0.0"):
+        self.ip = ip
+        self.port = port
         self.gameConfig = gameConfig
         self.levelController = LevelController(self.gameConfig)
         self.socket = None
@@ -62,12 +62,12 @@ class Server:
                 self.send_grid_update()
             self.send_command(NetworkCommand(ENetworkCommand.update_end, None))
 
-            winner = self.levelController.who_is_winner()
+            """winner = self.levelController.who_is_winner()
             if winner > -1:
                 gameEndData = GameEndData(winner)
                 gameEndData.has_next_game = self.gameConfig.tournament
                 self.send_command(NetworkCommand(ENetworkCommand.game_end, gameEndData))
-                break;
+                break;"""
 
     def send_grid_update(self):
         for i in range(len(self.clients)):

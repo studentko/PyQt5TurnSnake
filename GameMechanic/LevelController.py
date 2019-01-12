@@ -2,6 +2,7 @@ from GameMechanic.Snake import *
 from GameMechanic.Player import *
 from GameMechanic.WallBlock import *
 from GameMechanic.Food import *
+from GameMechanic.FoodAsProcess import *
 from random import randrange
 
 class LevelController:
@@ -75,7 +76,11 @@ class LevelController:
 
     def prepare_turn(self):
         for food in self.foods:
-            food.prepare_turn()
+            if food.is_killed():
+                food.kill()
+                self.foods.remove(food)
+            else:
+                food.prepare_turn()
 
     def make_turn_step(self):
         has_next = False
@@ -93,8 +98,8 @@ class LevelController:
                 x = randrange(0, self.gridContainer.width + 1)
                 y = randrange(0, self.gridContainer.height + 1)
                 if not self.gridContainer.has_blocks(x, y):
-                    food = Food(self.gridContainer)
-                    self.gridContainer.move_block(food.block, x, y)
+                    food = FoodAsProcess(self.gridContainer)
+                    self.gridContainer.move_block(food.food.block, x, y)
                     self.movables.append(food)
                     self.foods.append(food)
                     return True
@@ -135,7 +140,8 @@ class LevelController:
                                 snake.eat_food(fb.parent)
                     for fb in foodBlocks:
                         self.movables.remove(fb.parent)
-                        self.foods.remove(fb.parent)
+                        # TODO: fix it later
+                        # self.foods.remove(fb.parent)
                         fb.parent.kill()
 
     def who_is_winner(self):

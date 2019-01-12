@@ -8,7 +8,7 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.bckimg = QImage("Client\\imgs\\pozadina.png")
+        self.bckimg = QImage("Client/imgs/pozadina.png")
 
     def resizeEvent(self, QResizeEvent):
         self.resize(min(self.width(), self.height()), min(self.width(), self.height()))
