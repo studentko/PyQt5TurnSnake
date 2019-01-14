@@ -254,6 +254,8 @@ class TurnSnakeWindow(QMainWindow):
         self.imgsRaw.append(QImage("Client/imgs/prepreka.png"))
         self.imgsRaw.append(QImage("Client/imgs/hrana1.png"))
         self.imgsRaw.append(QImage("Client/imgs/hrana2.png"))
+        self.imgsRaw.append(QImage("Client/imgs/DeusA1.png"))
+        self.imgsRaw.append(QImage("Client/imgs/DeusA2.png"))
         self.imgsRaw.append(QImage("Client/imgs/kretanje.png"))
 
         self.masks = []
