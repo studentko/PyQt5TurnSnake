@@ -25,7 +25,9 @@ class EDrawable(IntEnum):
     Wall = 4
     FoodStep = 5
     FoodSnake = 6
-    MovePoint = 7
+    DeusActivating = 7
+    DeusActivated = 8
+    MovePoint = 9
 
 
 class EColor(IntEnum):
