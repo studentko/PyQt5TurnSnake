@@ -13,11 +13,12 @@ class Listener(QObject):
     resize = pyqtSignal(GreetingData)
     status = pyqtSignal(str)
 
-    def __init__(self, tsWin, address, port):
+    def __init__(self, player, address, port, main):
         super().__init__()
-        self.tsWin = tsWin
+        self.player: UIPlayer = player
         self.address = address
         self.port = port
+        self.main = main
 
         self.snakes = []
 
@@ -49,17 +50,19 @@ class Listener(QObject):
 
         while True:
             command = client.get_command()
-            if command.comm == ENetworkCommand.greeting:
+            if command.comm == ENetworkCommand.greeting and self.main:
                 self.resize.emit(command.data)
             elif command.comm == ENetworkCommand.container_update:
                 self.update.emit(command.data)
                 self.snakes = command.data.snakes
-            elif command.comm == ENetworkCommand.turn_count_start:
-                self.tsWin.startPlaning(command.data)
+            elif command.comm == ENetworkCommand.turn_count_start and self.main:
+                self.player.window.startPlaning(command.data)
                 self.status.emit("")
             elif command.comm == ENetworkCommand.call_for_plans:
-                client.send_plans(self.tsWin.endPlaningAndGetPlans())
-            elif command.comm == ENetworkCommand.game_end:
+                if self.main:
+                    self.player.window.endPlaningself()
+                client.send_plans(self.player.movingPlans)
+            elif command.comm == ENetworkCommand.game_end and self.main:
                 send = F"Player {command.data.winner} won!"
                 if command.data.has_next_game:
                     send += "\nWaiting\nfor next game"

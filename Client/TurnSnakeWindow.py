@@ -4,6 +4,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.Qt import *
 
 from Client.Dialogs import JoinDialog, HostDialog
+from Client.UIPlayer import UIPlayer
 from Client.listener import Listener
 from GameMechanic.GameConfig import GameConfig
 from Network.GreetingData import GreetingData
@@ -18,14 +19,14 @@ class TurnSnakeWindow(QMainWindow):
         super().__init__()
 
         self.gridWidth = 5
-        self.gridHeigth = 5
+        self.gridHeight = 5
         self.gridBlockSize = 45
 
-        self.gameRunnung = False
+        self.gameRunning = False
+
+        self.players = []
 
         self.blockGrid = []
-        self.snakeMoveLocation = []
-        self.moveingPlans = None
 
         self.turnTime = 0.0
         self.timer = QTimer(self)
@@ -34,12 +35,8 @@ class TurnSnakeWindow(QMainWindow):
         self.timer.start(100)
 
         self.planingPhase = False
-        self.selectedSnakeIndex = -1
-        self.snakes = []
 
         self.loadTextures()
-
-        self.listener = None
 
         self.__initUI__()
 
@@ -89,58 +86,70 @@ class TurnSnakeWindow(QMainWindow):
         self.grid.setSpacing(0)
 
         self.setWindowTitle("Turn Snake")
-        self.resize(self.gridWidth * self.gridBlockSize, self.gridHeigth * self.gridBlockSize)
+        self.resize(self.gridWidth * self.gridBlockSize, self.gridHeight * self.gridBlockSize)
         self.show()
-
-    def setListener(self, listener):
-        listener.update.connect(self.update)
-        listener.resize.connect(self.resizeBoard)
-        listener.status.connect(self.setGameStatus)
 
     def startPlaning(self, seconds):
         self.turnTime = seconds
         self.planingPhase = True
-        self.moveingPlans = MovingPlans()
-        self.snakeMoveLocation = []
-        for s in self.snakes:
-            self.moveingPlans.set_plan(s, [])
-            self.snakeMoveLocation.append([s.get_head().x, s.get_head().y])
-        self.selectedSnakeIndex = 0
+        for player in self.players:
+            player.snakeMoveLocation = []
+            player.movingPlans = MovingPlans()
+            for s in player.snakes:
+                player.movingPlans.set_plan(s, [])
+                player.snakeMoveLocation.append([s.get_head().x, s.get_head().y])
+            player.selectedSnakeIndex = 0
 
-    def endPlaningAndGetPlans(self) -> MovingPlans:
+    def endPlaningself(self):
         self.planingPhase = False
-        return self.moveingPlans
 
     def keyPressEvent(self, event: QKeyEvent):
         if self.planingPhase:
             if event.key() == Qt.Key_Tab:
-                self.setColorStatus(self.snakes[self.selectedSnakeIndex], True)
-                self.selectedSnakeIndex = (self.selectedSnakeIndex + 1) % len(self.snakes)
+                if len(self.players[0].snakes) > 0:
+                    self.setColorStatus(self.players[0].snakes[self.players[0].selectedSnakeIndex], True)
+                self.players[0].selectedSnakeIndex = (self.players[0].selectedSnakeIndex + 1) % len(self.players[0].snakes)
+            elif event.key() == Qt.Key_Space and len(self.players) == 2:
+                if len(self.players[1].snakes) > 0:
+                    self.setColorStatus(self.players[1].snakes[self.players[1].selectedSnakeIndex], True)
+                self.players[1].selectedSnakeIndex = (self.players[1].selectedSnakeIndex + 1) % len(self.players[1].snakes)
             else:
-                if len(self.snakes) > 0:
-                    snake = self.snakes[self.selectedSnakeIndex]
-                    plan = self.moveingPlans.get_plan(snake)
+                if len(self.players[0].snakes) > 0:
+                    snake = self.players[0].snakes[self.players[0].selectedSnakeIndex]
+                    plan = self.players[0].movingPlans.get_plan(snake)
                     if event.key() == Qt.Key_D:
-                        self.addPlanPoint(EMoveDirection.right, plan, snake)
+                        self.addPlanPoint(EMoveDirection.right, plan, snake, self.players[0])
                     elif event.key() == Qt.Key_W:
-                        self.addPlanPoint(EMoveDirection.down, plan, snake)
+                        self.addPlanPoint(EMoveDirection.down, plan, snake, self.players[0])
                     elif event.key() == Qt.Key_A:
-                        self.addPlanPoint(EMoveDirection.left, plan, snake)
+                        self.addPlanPoint(EMoveDirection.left, plan, snake, self.players[0])
                     elif event.key() == Qt.Key_S:
-                        self.addPlanPoint(EMoveDirection.up, plan, snake)
+                        self.addPlanPoint(EMoveDirection.up, plan, snake, self.players[0])
+                if len(self.players) == 2 and len(self.players[1].snakes) > 0:
+                    snake = self.players[1].snakes[self.players[1].selectedSnakeIndex]
+                    plan = self.players[1].movingPlans.get_plan(snake)
+                    if event.key() == Qt.Key_Right:
+                        self.addPlanPoint(EMoveDirection.right, plan, snake, self.players[1])
+                    elif event.key() == Qt.Key_Up:
+                        self.addPlanPoint(EMoveDirection.down, plan, snake, self.players[1])
+                    elif event.key() == Qt.Key_Left:
+                        self.addPlanPoint(EMoveDirection.left, plan, snake, self.players[1])
+                    elif event.key() == Qt.Key_Down:
+                        self.addPlanPoint(EMoveDirection.up, plan, snake, self.players[1])
 
-    def addPlanPoint(self, moveDir, plan, snake):
-        pos = self.snakeMoveLocation[self.selectedSnakeIndex]
+
+    def addPlanPoint(self, moveDir, plan, snake, player):
+        pos = player.snakeMoveLocation[player.selectedSnakeIndex]
         if len(plan) > 0 and (moveDir == plan[-1].getOposite()):
             self.blockGrid[pos[1]][pos[0]].texEnums.remove(EDrawable.MovePoint)
             plan.pop()
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
-            pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
+            pos[1] = (pos[1] + moveDir.y) % self.gridHeight
         elif len(plan) == 0 and moveDir.getOposite().getDirection() == snake.get_head().direction:
             pass
         elif len(plan) < snake.steps:
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
-            pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
+            pos[1] = (pos[1] + moveDir.y) % self.gridHeight
             self.blockGrid[pos[1]][pos[0]].texEnums.add(EDrawable.MovePoint)
             plan.append(moveDir)
         self.repaint()
@@ -152,27 +161,31 @@ class TurnSnakeWindow(QMainWindow):
     def resizeBoardXY(self, x, y):
 
         self.gridWidth = x
-        self.gridHeigth = y
+        self.gridHeight = y
 
         self.blockGrid = []
         for i in range(0, self.gridWidth):
             self.blockGrid.append([])
-            for j in range(0, self.gridHeigth):
+            for j in range(0, self.gridHeight):
                 block = BlockWidget(self.imgs, self.masks)
                 self.blockGrid[i].append(block)
                 self.grid.addWidget(block, i, j)
 
-        self.resize(self.gridWidth * self.gridBlockSize + 80, self.gridHeigth * self.gridBlockSize)
+        self.resize(self.gridWidth * self.gridBlockSize + 80, self.gridHeight * self.gridBlockSize)
 
     def join(self):
         dialog = JoinDialog(self)
         dialog.exec()
 
-    def joinPressed(self, address, port):
-        self.listener = Listener(self, address, port)
-        self.listener.start()
-
-        self.setListener(self.listener)
+    def joinPressed(self, address, port, p2):
+        self.players = []
+        player = UIPlayer(self, True)
+        player.listen(address, port)
+        self.players.append(player)
+        if p2:
+            player = UIPlayer(self, False)
+            player.listen(address, port)
+            self.players.append(player)
 
         self.joinAct.setEnabled(False)
         self.hostAct.setEnabled(False)
@@ -182,17 +195,18 @@ class TurnSnakeWindow(QMainWindow):
         dialog = HostDialog(self)
         dialog.exec()
 
-    def hostPressed(self, port, gameconfig):
+    def hostPressed(self, port, gameconfig, p2):
         start_server_process(gameconfig, port)
-        self.joinPressed("localhost", port)
+        self.joinPressed("localhost", port, p2)
 
         self.joinAct.setEnabled(False)
         self.hostAct.setEnabled(False)
         self.setGameStatus("Waiting\nfor players")
 
     def closeEvent(self, *args, **kwargs):
-        if self.listener is not None:
-            self.listener.stop()
+        for player in self.players:
+            if player.listener is not None:
+                player.listener.stop()
 
         stop_server_process()
         self.timer.stop()
@@ -201,7 +215,7 @@ class TurnSnakeWindow(QMainWindow):
         self.imgs.clear()
         for i in self.imgsRaw:
             self.imgs.append(
-                i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeigth,
+                i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeight,
                          Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
         self.masks.clear()
@@ -209,22 +223,19 @@ class TurnSnakeWindow(QMainWindow):
             nMasks = []
             for i in col:
                 nMasks.append(
-                    i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeigth,
+                    i.scaled(self.gridWidget.width() // self.gridWidth, self.gridWidget.height() // self.gridHeight,
                              Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
             self.masks.append(nMasks)
 
-    @pyqtSlot(GridContainerUpdate)
-    def update(self, gc: GridContainerUpdate):
-        self.snakes = gc.snakes
-        for snake in self.snakes:
-            self.setColorStatus(snake, True)
-        if len(self.snakes) > 0:
+    def update(self, gc: GridContainer):
+        #todo color label
+        """if len(self.snakes) > 0:
             self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
         else:
-            self.playerColorLabel.setText("Player: dead")
+            self.playerColorLabel.setText("Player: dead")"""
         for i in range(0, self.gridWidth):
-            for j in range(0, self.gridHeigth):
-                self.blockGrid[i][j].setTextures(gc.gridContainer.blockMatrix[i][j])
+            for j in range(0, self.gridHeight):
+                self.blockGrid[i][j].setTextures(gc.blockMatrix[i][j])
         self.repaint()
 
     def updateTimer(self):
@@ -234,10 +245,12 @@ class TurnSnakeWindow(QMainWindow):
 
         self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
 
-        if self.planingPhase and len(self.snakes) > 0:
-            snake = self.snakes[self.selectedSnakeIndex]
-            drawsColor = self.blockGrid[snake.get_head().y][snake.get_head().x].drawFullColor
-            self.setColorStatus(snake, not drawsColor)
+        if self.planingPhase:
+            for player in self.players:
+                if len(player.snakes) > 0:
+                    snake = player.snakes[player.selectedSnakeIndex]
+                    drawsColor = self.blockGrid[snake.get_head().y][snake.get_head().x].drawFullColor
+                    self.setColorStatus(snake, not drawsColor)
 
     def setColorStatus(self, snake, val):
         for block in snake.blocks:
