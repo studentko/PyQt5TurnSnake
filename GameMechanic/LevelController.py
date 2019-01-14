@@ -3,6 +3,7 @@ from GameMechanic.Player import *
 from GameMechanic.WallBlock import *
 from GameMechanic.Food import *
 from GameMechanic.FoodAsProcess import *
+from GameMechanic.DeusBlock import *
 from random import randrange
 
 class LevelController:
@@ -16,6 +17,8 @@ class LevelController:
         self.foods = []
         self.foodSpawnTurn = randrange(1, 2)
         self.foodblockprocessbind = dict()
+        self.deus = None
+        self.deusSpawnTurn = randrange(2, 3)
 
     def add_test_data(self):
         snake = Snake(self.gridContainer, 3, 3, 5, 8, EMoveDirection.right)
@@ -76,6 +79,8 @@ class LevelController:
             self.players.append(player)
 
     def prepare_turn(self):
+        if self.deus is not None:
+            self.deus.prepare_turn(self)
         for food in self.foods:
                 food.prepare_turn()
 
@@ -87,11 +92,27 @@ class LevelController:
         return has_next
 
     def complete_turn(self):
+        created = False
+
+        self.deusSpawnTurn -= 1
+        if self.deusSpawnTurn <= 0:
+            self.deusSpawnTurn = randrange(4, 6)
+            tries = 0
+            while tries < 10:
+                tries += 1
+                x = randrange(0, self.gridContainer.width + 1)
+                y = randrange(0, self.gridContainer.height + 1)
+                if not self.gridContainer.has_blocks(x, y):
+                    self.deus = DeusBlock()
+                    self.gridContainer.move_block(self.deus, x, y)
+                    break
+
         self.foodSpawnTurn = self.foodSpawnTurn - 1
         if self.foodSpawnTurn <= 0:
             self.foodSpawnTurn = randrange(1, 2)
             tries = 0
             while ++tries < 10:
+                tries += 1
                 x = randrange(0, self.gridContainer.width + 1)
                 y = randrange(0, self.gridContainer.height + 1)
                 if not self.gridContainer.has_blocks(x, y):
@@ -103,7 +124,8 @@ class LevelController:
 
                     food.start_process()
                     return True
-        return False
+
+        return created
 
     def has_turn_step(self):
         for m in self.movables:
@@ -118,6 +140,7 @@ class LevelController:
                     walls = set()
                     snakeBlocks = set()
                     foodBlocks = set()
+                    deusBlock = None
                     for block in cellset:
                         if isinstance(block, WallBlock):
                             walls.add(block)
@@ -125,6 +148,8 @@ class LevelController:
                             snakeBlocks.add(block)
                         if isinstance(block, FoodBlock):
                             foodBlocks.add(block)
+                        if isinstance(block, DeusBlock):
+                            deusBlock = block
                     if len(walls) > 0:
                         for sb in snakeBlocks:
                             sb.parentSnake.kill()
@@ -138,13 +163,33 @@ class LevelController:
                             snake = sb.parentSnake
                             for fb in foodBlocks:
                                 snake.eat_food(fb.parent)
+
+                    if deusBlock is not None and len(snakeBlocks) == 1:
+                        snake = snakeBlocks.pop().parentSnake
+                        self.apply_deus(snake)
+
                     for fb in foodBlocks:
-                        pass
-                        # TODO: fix it later
                         parent = self.foodblockprocessbind[fb]
                         self.movables.remove(parent)
                         self.foods.remove(parent)
                         parent.kill()
+
+    def apply_deus(self, snake):
+        if self.deus is None or self.deus.drawable == EDrawable.DeusActivating:
+            print("Deus is not ready yet")
+            return
+        if self.deus.gift:
+            print("Deus will give you gift")
+            for p in self.players:
+                if snake.parentPlayer != p:
+                    if len(p.snakes) > 0:
+                        s = p.snakes[0]
+                        s.kill()
+        else:
+            print("You got punish from deus")
+            snake.kill()
+        self.gridContainer.remove_block(self.deus)
+        self.deus = None
 
     def who_is_winner(self):
         active_players = 0
