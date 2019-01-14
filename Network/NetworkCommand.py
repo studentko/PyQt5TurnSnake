@@ -4,6 +4,7 @@ import base64
 import sys
 import socket
 from time import sleep
+from threading import Thread
 
 class ENetworkCommand(Enum):
     greeting = 1
@@ -14,12 +15,19 @@ class ENetworkCommand(Enum):
     update_start = 6
     update_end = 7
     game_end = 8
+    tournament_update = 9
 
 
 class NetworkCommand:
     def __init__(self, comm, data):
         self.comm = comm
         self.data = data
+
+
+def send_command_to_socket_threaded(networkCommand, socket):
+    t = Thread(target=send_command_to_socket, args=(networkCommand, socket))
+    t.start()
+    return t;
 
 
 def send_command_to_socket(networkCommand, socket):

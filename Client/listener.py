@@ -50,6 +50,7 @@ class Listener(QObject):
         while True:
             command = client.get_command()
             if command.comm == ENetworkCommand.greeting:
+                client.send_name(None)
                 self.resize.emit(command.data)
             elif command.comm == ENetworkCommand.container_update:
                 self.update.emit(command.data)
@@ -64,3 +65,6 @@ class Listener(QObject):
                 if command.data.has_next_game:
                     send += "\nWaiting\nfor next game"
                 self.status.emit(send)
+            elif command.comm == ENetworkCommand.tournament_update:
+                # TODO: print this string to label or dialog in GUI
+                print(Client.tournament_update_data_to_string(command.data))

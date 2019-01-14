@@ -42,7 +42,10 @@ class LevelController:
             self.gridContainer.move_block(WallBlock(), self.gridContainer.width - 1, i + 1)
 
     def init_players(self):
-        for i in range(self.gameConfig.playerNumber):
+        playerNumber = self.gameConfig.playerNumber
+        if self.gameConfig.tournament:
+            playerNumber = 2
+        for i in range(playerNumber):
             player = Player()
             start_x = 0
             start_y = 0

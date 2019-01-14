@@ -9,7 +9,9 @@ from Network.GameEndData import *
 from GameMechanic.LevelController import *
 from GameMechanic.GameConfig import *
 from time import sleep
-
+from Network.ServerGame import ServerGame
+from Network.TournamentUpdateData import TournamentUpdateData
+from threading import Thread
 
 class Server:
     def __init__(self, gameConfig, port=12355, ip="0.0.0.0"):
@@ -19,13 +21,26 @@ class Server:
         self.levelController = LevelController(self.gameConfig)
         self.socket = None
         self.clients = []
+        self.clientsNames = dict()
+        self.serverGames = []
+        self.tournamentUpdateData = None
+        self.gameNumber = 1
 
     def start_server(self):
         self.socket = socket.socket()
         self.socket.bind((self.ip, self.port))
         self.socket.listen(5)
         self.accept_clients()
+        self.create_server_games()
         self.start_game_loop()
+
+    def send_command(self, networkCommand):
+        threads = []
+        for c in self.clients:
+            t = send_command_to_socket_threaded(networkCommand, c)
+            threads.append(t)
+        for t in threads:
+            t.join()
 
     def accept_clients(self):
         while len(self.clients) < self.gameConfig.playerNumber:
@@ -34,51 +49,82 @@ class Server:
             greetingData = GreetingData(len(self.clients), self.levelController.gridContainer.width,
                                         self.levelController.gridContainer.height)
             send_command_to_socket(NetworkCommand(ENetworkCommand.greeting, greetingData), c)
+
+            command = get_command_from_socket(c)
+            if command.data is None:
+                self.clientsNames[c] = "Player " + str(len(self.clients) + 1)
+            else:
+                self.clientsNames[c] = command.data
+
             self.clients.append(c)
 
-    def send_command(self, networkCommand):
-        for c in self.clients:
-            send_command_to_socket(networkCommand, c)
+    def create_server_games(self):
+        winner_client = None
+        if self.gameConfig.tournament:
+            clients = []
+            if len(self.serverGames) > 0:
+                for game in self.serverGames:
+                    clients.append(game.get_winner_client())
+            else:
+                clients.extend(self.clients)
+                shuffle(clients)
+
+            self.serverGames.clear()
+            clients_for_game = []
+            for client in clients:
+                clients_for_game.append(client)
+                if len(clients_for_game) >= 2:
+                    serverGame = ServerGame(self.gameConfig, clients_for_game, self)
+                    self.serverGames.append(serverGame)
+                    clients_for_game = []
+
+            if len(clients_for_game) >= 2:
+                serverGame = ServerGame(self.gameConfig, clients_for_game, self)
+                self.serverGames.append(serverGame)
+
+            if len(clients) == 1:
+                winner_client = clients[0]
+                self.serverGames.clear()
+        else:
+            self.serverGames.clear()
+            serverGame = ServerGame(self.gameConfig, self.clients, self)
+            self.serverGames.append(serverGame)
+
+        if self.gameConfig.tournament:
+            tud = TournamentUpdateData()
+            tud.previousTournamentData = self.tournamentUpdateData
+            tud.gameNumber = self.gameNumber
+            self.gameNumber += 1
+
+            tud.matchTable = ""
+            if winner_client is None:
+                for game in self.serverGames:
+                    line = ""
+                    for client in game.clients:
+                        if len(line) > 0:
+                            line += " vs "
+                        line += self.clientsNames[client]
+                    tud.matchTable += line + "\n"
+            else:
+                tud.matchTable = self.clientsNames[winner_client]
+                tud.tournamentCompleted = True
+                tud.tournamentWinner = self.clientsNames[winner_client]
+
+            self.tournamentUpdateData = tud
 
     def start_game_loop(self):
-        self.send_command(NetworkCommand(ENetworkCommand.game_start, None))
-        # self.send_command(NetworkCommand(ENetworkCommand.container_update, self.levelController.gridContainer))
-        self.send_grid_update()
-
         while True:
-            self.send_command(NetworkCommand(ENetworkCommand.turn_count_start, self.gameConfig.turnPlanTime))
-            sleep(self.gameConfig.turnPlanTime)
-            self.send_command(NetworkCommand(ENetworkCommand.call_for_plans, None))
-            self.get_plans_from_clients()
+            threads = []
+            for game in self.serverGames:
+                t = Thread(target=game.start_game_loop)
+                threads.append(t)
+                t.start()
 
-            self.send_command(NetworkCommand(ENetworkCommand.update_start, None))
-            self.levelController.prepare_turn()
-            while self.levelController.has_turn_step():
-                self.levelController.make_turn_step()
-                # self.send_command(NetworkCommand(ENetworkCommand.container_update, self.levelController.gridContainer))
-                self.send_grid_update()
-                sleep(0.2)
-            if self.levelController.complete_turn():
-                self.send_grid_update()
-            self.send_command(NetworkCommand(ENetworkCommand.update_end, None))
+            for t in threads:
+                t.join()
 
-            """winner = self.levelController.who_is_winner()
-            if winner > -1:
-                gameEndData = GameEndData(winner)
-                gameEndData.has_next_game = self.gameConfig.tournament
-                self.send_command(NetworkCommand(ENetworkCommand.game_end, gameEndData))
-                break;"""
-
-    def send_grid_update(self):
-        for i in range(len(self.clients)):
-            c = self.clients[i]
-            gcu = GridContainerUpdate(self.levelController.gridContainer,
-                                      self.levelController.players[i].snakes)
-            send_command_to_socket(NetworkCommand(ENetworkCommand.container_update, gcu), c)
-
-    def get_plans_from_clients(self):
-        for i in range(len(self.clients)):
-            c = self.clients[i]
-            command = get_command_from_socket(c)
-            for snake in self.levelController.players[i].snakes:
-                snake.set_move_steps(command.data.get_plan(snake))
+            if len(self.serverGames) > 1:
+                self.create_server_games()
+            else:
+                self.send_command(NetworkCommand(ENetworkCommand.tournament_update, self.tournamentUpdateData))
+                break
