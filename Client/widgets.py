@@ -40,14 +40,14 @@ class BlockWidget(QWidget):
 
             p.resetTransform()
 
-            if (isinstance(i, BaseBlock)):
+            if isinstance(i, BaseBlock):
                 p.translate(r.width() / 2, r.height() / 2)
-                if (i.direction == 90 or i.direction == 270):
+                if i.direction == 90 or i.direction == 270:
                     r.setRect(0, 0, r.height(), r.width())
                 p.rotate(i.direction)
                 p.translate(-r.width() / 2, -r.height() / 2)
                 p.drawImage(r, self.imgs[i.getDrawable()])
-                if (i.color != EColor.none):
+                if i.color != EColor.none:
                     if not self.drawFullColor:
                         p.setOpacity(0.6)
                         p.drawImage(r, self.masks[i.color][i.getDrawable()])

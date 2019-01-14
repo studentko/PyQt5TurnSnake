@@ -23,6 +23,10 @@ class TurnSnakeWindow(QMainWindow):
 
         self.gameRunnung = False
 
+        self.blockGrid = []
+        self.snakeMoveLocation = []
+        self.moveingPlans = None
+
         self.turnTime = 0.0
         self.timer = QTimer(self)
         self.timer.setSingleShot(False)
@@ -108,33 +112,33 @@ class TurnSnakeWindow(QMainWindow):
         return self.moveingPlans
 
     def keyPressEvent(self, event: QKeyEvent):
-        if (self.planingPhase):
-            if (event.key() == Qt.Key_Tab):
+        if self.planingPhase:
+            if event.key() == Qt.Key_Tab:
                 self.setColorStatus(self.snakes[self.selectedSnakeIndex], True)
                 self.selectedSnakeIndex = (self.selectedSnakeIndex + 1) % len(self.snakes)
             else:
-                if (len(self.snakes) > 0):
+                if len(self.snakes) > 0:
                     snake = self.snakes[self.selectedSnakeIndex]
                     plan = self.moveingPlans.get_plan(snake)
-                    if (event.key() == Qt.Key_D):
+                    if event.key() == Qt.Key_D:
                         self.addPlanPoint(EMoveDirection.right, plan, snake)
-                    elif (event.key() == Qt.Key_W):
+                    elif event.key() == Qt.Key_W:
                         self.addPlanPoint(EMoveDirection.down, plan, snake)
-                    elif (event.key() == Qt.Key_A):
+                    elif event.key() == Qt.Key_A:
                         self.addPlanPoint(EMoveDirection.left, plan, snake)
-                    elif (event.key() == Qt.Key_S):
+                    elif event.key() == Qt.Key_S:
                         self.addPlanPoint(EMoveDirection.up, plan, snake)
 
     def addPlanPoint(self, moveDir, plan, snake):
         pos = self.snakeMoveLocation[self.selectedSnakeIndex]
-        if (len(plan) > 0 and (moveDir == plan[-1].getOposite())):
+        if len(plan) > 0 and (moveDir == plan[-1].getOposite()):
             self.blockGrid[pos[1]][pos[0]].texEnums.remove(EDrawable.MovePoint)
             plan.pop()
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
             pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
-        elif (len(plan) == 0 and moveDir.getOposite().getDirection() == snake.get_head().direction):
+        elif len(plan) == 0 and moveDir.getOposite().getDirection() == snake.get_head().direction:
             pass
-        elif (len(plan) < snake.steps):
+        elif len(plan) < snake.steps:
             pos[0] = (pos[0] + moveDir.x) % self.gridWidth
             pos[1] = (pos[1] + moveDir.y) % self.gridHeigth
             self.blockGrid[pos[1]][pos[0]].texEnums.add(EDrawable.MovePoint)
@@ -187,7 +191,7 @@ class TurnSnakeWindow(QMainWindow):
         self.setGameStatus("Waiting\nfor players")
 
     def closeEvent(self, *args, **kwargs):
-        if (self.listener is not None):
+        if self.listener is not None:
             self.listener.stop()
 
         stop_server_process()
@@ -214,7 +218,7 @@ class TurnSnakeWindow(QMainWindow):
         self.snakes = gc.snakes
         for snake in self.snakes:
             self.setColorStatus(snake, True)
-        if (len(self.snakes) > 0):
+        if len(self.snakes) > 0:
             self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
         else:
             self.playerColorLabel.setText("Player: dead")

@@ -49,17 +49,17 @@ class Listener(QObject):
 
         while True:
             command = client.get_command()
-            if (command.comm == ENetworkCommand.greeting):
+            if command.comm == ENetworkCommand.greeting:
                 self.resize.emit(command.data)
-            elif (command.comm == ENetworkCommand.container_update):
+            elif command.comm == ENetworkCommand.container_update:
                 self.update.emit(command.data)
                 self.snakes = command.data.snakes
-            elif (command.comm == ENetworkCommand.turn_count_start):
+            elif command.comm == ENetworkCommand.turn_count_start:
                 self.tsWin.startPlaning(command.data)
                 self.status.emit("")
-            elif (command.comm == ENetworkCommand.call_for_plans):
+            elif command.comm == ENetworkCommand.call_for_plans:
                 client.send_plans(self.tsWin.endPlaningAndGetPlans())
-            elif (command.comm == ENetworkCommand.game_end):
+            elif command.comm == ENetworkCommand.game_end:
                 send = F"Player {command.data.winner} won!"
                 if command.data.has_next_game:
                     send += "\nWaiting\nfor next game"
