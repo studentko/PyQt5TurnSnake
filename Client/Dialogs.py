@@ -30,6 +30,10 @@ class JoinDialog(QDialog):
         self.input2.setText("12355")
         layout.addWidget(self.input2)
 
+        self.chbox = QCheckBox()
+        self.chbox.setText("2 Players")
+        layout.addWidget(self.chbox)
+
         self.button = QPushButton("Join")
         self.button.clicked.connect(self.btnPressed)
         layout.addWidget(self.button)
@@ -37,7 +41,7 @@ class JoinDialog(QDialog):
         self.show()
 
     def btnPressed(self):
-        self.par.joinPressed(self.input1.text(), int(self.input2.text()))
+        self.par.joinPressed(self.input1.text(), int(self.input2.text()), self.chbox.isChecked())
         self.close()
 
 
@@ -99,6 +103,10 @@ class HostDialog(QDialog):
         self.chbox.setText("Tournament")
         layout.addWidget(self.chbox)
 
+        self.mpc = QCheckBox()
+        self.mpc.setText("2 Player")
+        layout.addWidget(self.mpc)
+
         self.button = QPushButton("Host")
         self.button.clicked.connect(self.btnPressed)
         layout.addWidget(self.button)
@@ -115,5 +123,5 @@ class HostDialog(QDialog):
         conf.turnPlanTime = float(self.input6.text())
         conf.tournament = self.chbox.isChecked()
 
-        self.par.hostPressed(int(self.input1.text()), conf)
+        self.par.hostPressed(int(self.input1.text()), conf, self.mpc.isChecked())
         self.close()
