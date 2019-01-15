@@ -7,8 +7,9 @@ from GameMechanic.DeusBlock import *
 from random import randrange
 
 class LevelController:
-    def __init__(self, gameConfig):
+    def __init__(self, gameConfig, tournament_players=2):
         self.gameConfig = gameConfig
+        self.tournament_players = tournament_players
         self.gridContainer = GridContainer(15, 15)
         self.movables = []
         self.players = []
@@ -44,7 +45,7 @@ class LevelController:
     def init_players(self):
         playerNumber = self.gameConfig.playerNumber
         if self.gameConfig.tournament:
-            playerNumber = 2
+            playerNumber = self.tournament_players
         for i in range(playerNumber):
             player = Player()
             start_x = 0

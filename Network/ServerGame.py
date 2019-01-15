@@ -12,7 +12,7 @@ class ServerGame:
         self.gameConfig = gameConfig
         self.clients = clients
         self.server = server
-        self.levelController = LevelController(gameConfig)
+        self.levelController = LevelController(gameConfig, len(clients))
         self.winner = -1
 
     def send_command(self, networkCommand):

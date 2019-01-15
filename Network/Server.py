@@ -79,7 +79,7 @@ class Server:
                     self.serverGames.append(serverGame)
                     clients_for_game = []
 
-            if len(clients_for_game) >= 2:
+            if len(clients_for_game) >= 1:
                 serverGame = ServerGame(self.gameConfig, clients_for_game, self)
                 self.serverGames.append(serverGame)
 
