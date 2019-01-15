@@ -53,12 +53,15 @@ class TurnSnakeWindow(QMainWindow):
         menu.addAction(self.joinAct)
         menu.addAction(self.hostAct)
 
-        centerWidget = QWidget(self)
-        self.setCentralWidget(centerWidget)
-        mainLayout = QHBoxLayout(centerWidget)
+        self.tournamentLabel = QLabel(self)
+        self.tournamentLabel.setGeometry(50, 50, 200, 200)
+        self.tournamentLabel.hide()
+        self.centerWidget = QWidget(self)
+        self.setCentralWidget(self.centerWidget)
+        mainLayout = QHBoxLayout(self.centerWidget)
         mainLayout.setSpacing(0)
         mainLayout.setContentsMargins(0, 0, 0, 0)
-        centerWidget.setLayout(mainLayout)
+        self.centerWidget.setLayout(mainLayout)
 
         self.gridWidget = MainWidget()
         mainLayout.addWidget(self.gridWidget)
@@ -108,11 +111,11 @@ class TurnSnakeWindow(QMainWindow):
             if event.key() == Qt.Key_Tab:
                 if len(self.players[0].snakes) > 0:
                     self.setColorStatus(self.players[0].snakes[self.players[0].selectedSnakeIndex], True)
-                self.players[0].selectedSnakeIndex = (self.players[0].selectedSnakeIndex + 1) % len(self.players[0].snakes)
+                    self.players[0].selectedSnakeIndex = (self.players[0].selectedSnakeIndex + 1) % len(self.players[0].snakes)
             elif event.key() == Qt.Key_Space and len(self.players) == 2:
                 if len(self.players[1].snakes) > 0:
                     self.setColorStatus(self.players[1].snakes[self.players[1].selectedSnakeIndex], True)
-                self.players[1].selectedSnakeIndex = (self.players[1].selectedSnakeIndex + 1) % len(self.players[1].snakes)
+                    self.players[1].selectedSnakeIndex = (self.players[1].selectedSnakeIndex + 1) % len(self.players[1].snakes)
             else:
                 if len(self.players[0].snakes) > 0:
                     snake = self.players[0].snakes[self.players[0].selectedSnakeIndex]
@@ -177,14 +180,14 @@ class TurnSnakeWindow(QMainWindow):
         dialog = JoinDialog(self)
         dialog.exec()
 
-    def joinPressed(self, address, port, p2):
+    def joinPressed(self, address, port, p2, names):
         self.players = []
         player = UIPlayer(self, True)
-        player.listen(address, port)
+        player.listen(address, port, names[0])
         self.players.append(player)
         if p2:
             player = UIPlayer(self, False)
-            player.listen(address, port)
+            player.listen(address, port, names[1])
             self.players.append(player)
 
         self.joinAct.setEnabled(False)
@@ -195,9 +198,9 @@ class TurnSnakeWindow(QMainWindow):
         dialog = HostDialog(self)
         dialog.exec()
 
-    def hostPressed(self, port, gameconfig, p2):
+    def hostPressed(self, port, gameconfig, p2, names):
         start_server_process(gameconfig, port)
-        self.joinPressed("localhost", port, p2)
+        self.joinPressed("localhost", port, p2, names)
 
         self.joinAct.setEnabled(False)
         self.hostAct.setEnabled(False)
@@ -228,11 +231,23 @@ class TurnSnakeWindow(QMainWindow):
             self.masks.append(nMasks)
 
     def update(self, gc: GridContainer):
-        #todo color label
-        """if len(self.snakes) > 0:
-            self.playerColorLabel.setText(F"Player: {self.snakes[0].get_head().color.name}")
+        self.tournamentLabel.hide()
+        self.centerWidget.show()
+        if len(self.players) == 1:
+            if len(self.players[0].snakes) > 0:
+                self.playerColorLabel.setText(F"Player: {self.players[0].snakes[0].get_head().color.name}")
+            else:
+                self.playerColorLabel.setText("Player: dead")
         else:
-            self.playerColorLabel.setText("Player: dead")"""
+            if len(self.players[0].snakes) > 0:
+                state1 = self.players[0].snakes[0].get_head().color.name
+            else:
+                state1 = "dead"
+            if len(self.players[1].snakes) > 0:
+                state2 = self.players[1].snakes[0].get_head().color.name
+            else:
+                state2 = "dead"
+            self.playerColorLabel.setText(F"P: {state1}, {state2}")
         for i in range(0, self.gridWidth):
             for j in range(0, self.gridHeight):
                 self.blockGrid[i][j].setTextures(gc.blockMatrix[i][j])
@@ -243,9 +258,8 @@ class TurnSnakeWindow(QMainWindow):
         if (self.turnTime < 0):
             self.turnTime = 0.0
 
-        self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
-
         if self.planingPhase:
+            self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
             for player in self.players:
                 if len(player.snakes) > 0:
                     snake = player.snakes[player.selectedSnakeIndex]
@@ -256,6 +270,12 @@ class TurnSnakeWindow(QMainWindow):
         for block in snake.blocks:
             self.blockGrid[block.y][block.x].drawFullColor = val
             self.blockGrid[block.y][block.x].repaint()
+
+    @pyqtSlot(str)
+    def setTournamentText(self, text):
+        self.tournamentLabel.setText(text)
+        self.centerWidget.hide()
+        self.tournamentLabel.show()
 
     @pyqtSlot(str)
     def setGameStatus(self, text):

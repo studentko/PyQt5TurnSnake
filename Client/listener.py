@@ -12,13 +12,15 @@ class Listener(QObject):
     update = pyqtSignal(GridContainerUpdate)
     resize = pyqtSignal(GreetingData)
     status = pyqtSignal(str)
+    tournament = pyqtSignal(str)
 
-    def __init__(self, player, address, port, main):
+    def __init__(self, player, address, port, main, name=None):
         super().__init__()
         self.player: UIPlayer = player
         self.address = address
         self.port = port
         self.main = main
+        self.name = name
 
         self.snakes = []
 
@@ -51,8 +53,7 @@ class Listener(QObject):
         while True:
             command = client.get_command()
             if command.comm == ENetworkCommand.greeting and self.main:
-                # TODO: send a player name here
-                client.send_name(None)
+                client.send_name(self.name)
 
                 self.resize.emit(command.data)
             elif command.comm == ENetworkCommand.container_update:
@@ -71,5 +72,5 @@ class Listener(QObject):
                     send += "\nWaiting\nfor next game"
                 self.status.emit(send)
             elif command.comm == ENetworkCommand.tournament_update:
-                # TODO: print this string to label or dialog in GUI
-                print(Client.tournament_update_data_to_string(command.data))
+                self.tournament.emit(Client.tournament_update_data_to_string(command.data))
+                #print(Client.tournament_update_data_to_string(command.data))

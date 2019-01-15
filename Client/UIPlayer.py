@@ -18,8 +18,8 @@ class UIPlayer:
 
         self.listener = None
 
-    def listen(self, address, port):
-        self.listener = Listener(self, address, port, self.main)
+    def listen(self, address, port, name):
+        self.listener = Listener(self, address, port, self.main, name)
         self.listener.start()
 
         self.setListener(self.listener)
@@ -29,10 +29,10 @@ class UIPlayer:
         for snake in self.snakes:
             self.window.setColorStatus(snake, True)
 
-        if self.main:
-            self.window.update(gc.gridContainer)
+        self.window.update(gc.gridContainer)
 
     def setListener(self, listener):
         listener.update.connect(self.update)
         listener.resize.connect(self.window.resizeBoard)
         listener.status.connect(self.window.setGameStatus)
+        listener.tournament.connect(self.window.setTournamentText)

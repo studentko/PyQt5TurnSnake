@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QDialog, QLineEdit, QLabel, QPushButton, QVBoxLayout, QCheckBox
 
 from GameMechanic.GameConfig import GameConfig
@@ -30,9 +30,12 @@ class JoinDialog(QDialog):
         self.input2.setText("12355")
         layout.addWidget(self.input2)
 
-        self.chbox = QCheckBox()
-        self.chbox.setText("2 Players")
-        layout.addWidget(self.chbox)
+        self.label3 = QLabel("Player name:")
+        layout.addWidget(self.label3)
+
+        self.input3 = QLineEdit()
+        self.input3.setText("")
+        layout.addWidget(self.input3)
 
         self.button = QPushButton("Join")
         self.button.clicked.connect(self.btnPressed)
@@ -41,7 +44,7 @@ class JoinDialog(QDialog):
         self.show()
 
     def btnPressed(self):
-        self.par.joinPressed(self.input1.text(), int(self.input2.text()), self.chbox.isChecked())
+        self.par.joinPressed(self.input1.text(), int(self.input2.text()), False, [self.input3.text()])
         self.close()
 
 
@@ -101,10 +104,23 @@ class HostDialog(QDialog):
 
         self.chbox = QCheckBox()
         self.chbox.setText("Tournament")
+        self.chbox.stateChanged.connect(self.tournamentChecked)
         layout.addWidget(self.chbox)
+
+        self.label7 = QLabel("Player names:")
+        layout.addWidget(self.label7)
+
+        self.input7 = QLineEdit()
+        self.input7.setText("")
+        layout.addWidget(self.input7)
+
+        self.input8 = QLineEdit()
+        self.input8.setText("")
+        layout.addWidget(self.input8)
 
         self.mpc = QCheckBox()
         self.mpc.setText("2 Player")
+        self.mpc.stateChanged.connect(self.mcpChecked)
         layout.addWidget(self.mpc)
 
         self.button = QPushButton("Host")
@@ -123,5 +139,21 @@ class HostDialog(QDialog):
         conf.turnPlanTime = float(self.input6.text())
         conf.tournament = self.chbox.isChecked()
 
-        self.par.hostPressed(int(self.input1.text()), conf, self.mpc.isChecked())
+        self.par.hostPressed(int(self.input1.text()), conf, self.mpc.isChecked(), [self.input7.text(), self.input8.text()])
         self.close()
+
+    def tournamentChecked(self, state):
+        if state == Qt.Checked:
+            self.mpc.setEnabled(False)
+            self.mpc.setChecked(False)
+            self.input8.setEnabled(False)
+        else:
+            self.mpc.setEnabled(True)
+            self.input8.setEnabled(True)
+
+    def mcpChecked(self, state):
+        if state == Qt.Checked:
+            self.chbox.setChecked(False)
+            self.chbox.setEnabled(False)
+        else:
+            self.chbox.setEnabled(True)
