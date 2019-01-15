@@ -215,6 +215,7 @@ class TurnSnakeWindow(QMainWindow):
         self.timer.stop()
 
     def resizeEvent(self, event):
+        self.tournamentLabel.setGeometry(20, 20, self.width() - 240, self.height() - 40)
         self.imgs.clear()
         for i in self.imgsRaw:
             self.imgs.append(
