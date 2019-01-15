@@ -202,7 +202,13 @@ class LevelController:
                 active_players += + 1
             winner_index += 1
         if active_players == 1:
-            return winner_index
+            for i in range(len(self.players)):
+                if len(self.players[i].snakes) > 0:
+                    return i
         if active_players == 0:
             return 0
         return -1
+
+    def complete_level(self):
+        for food in self.foods:
+            food.kill()

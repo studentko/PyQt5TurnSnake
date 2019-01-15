@@ -31,7 +31,8 @@ if __name__=="__main__":
     """
 
     config = GameConfig()
-    config.playerNumber = 1
-    config.turnPlanTime = 2
+    config.tournament = True
+    config.playerNumber = 4
+    config.turnPlanTime = 5
     srv = Server(config)
     srv.start_server()

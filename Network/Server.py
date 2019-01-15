@@ -33,6 +33,7 @@ class Server:
         self.accept_clients()
         self.create_server_games()
         self.start_game_loop()
+        print("-----------------------------> Server completed")
 
     def send_command(self, networkCommand):
         threads = []
@@ -123,7 +124,7 @@ class Server:
             for t in threads:
                 t.join()
 
-            if len(self.serverGames) > 1:
+            if len(self.serverGames) > 0:
                 self.create_server_games()
             else:
                 self.send_command(NetworkCommand(ENetworkCommand.tournament_update, self.tournamentUpdateData))
