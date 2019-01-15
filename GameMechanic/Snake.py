@@ -29,6 +29,13 @@ class Snake(MovableObject):
         self.blocks[0].sbType = ESnakeBlockType.tail
         self.blocks[-1].sbType = ESnakeBlockType.head
 
+    def prepare_turn(self):
+        extend_step = self.lastStepDirection
+        if len(self.moveSteps):
+            extend_step = self.moveSteps[-1]
+        while len(self.moveSteps) < self.steps:
+            self.moveSteps.append(extend_step)
+
     def make_step(self):
         if len(self.moveSteps) <= 0 or self.lives <= 0:
             return False

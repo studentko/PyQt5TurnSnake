@@ -86,7 +86,9 @@ class LevelController:
             self.deus.prepare_turn(self)
         for food in self.foods:
                 food.prepare_turn()
-
+        for player in self.players:
+            for snake in player.snakes:
+                snake.prepare_turn()
     def make_turn_step(self):
         has_next = False
         for m in self.movables:
