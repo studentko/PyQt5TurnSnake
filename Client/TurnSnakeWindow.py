@@ -54,7 +54,7 @@ class TurnSnakeWindow(QMainWindow):
         menu.addAction(self.hostAct)
 
         self.tournamentLabel = QLabel(self)
-        self.tournamentLabel.setGeometry(50, 50, 200, 200)
+        self.tournamentLabel.setGeometry(50, 50, 200, 800)
         self.tournamentLabel.hide()
         self.centerWidget = QWidget(self)
         self.setCentralWidget(self.centerWidget)
@@ -258,8 +258,9 @@ class TurnSnakeWindow(QMainWindow):
         if (self.turnTime < 0):
             self.turnTime = 0.0
 
+        self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
+
         if self.planingPhase:
-            self.turnTimerLabel.setText("Time: %.1f" % self.turnTime)
             for player in self.players:
                 if len(player.snakes) > 0:
                     snake = player.snakes[player.selectedSnakeIndex]

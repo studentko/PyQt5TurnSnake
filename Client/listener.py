@@ -56,6 +56,8 @@ class Listener(QObject):
                 client.send_name(self.name)
 
                 self.resize.emit(command.data)
+            elif command.comm == ENetworkCommand.greeting:
+                client.send_name(self.name)
             elif command.comm == ENetworkCommand.container_update:
                 self.update.emit(command.data)
                 self.snakes = command.data.snakes
