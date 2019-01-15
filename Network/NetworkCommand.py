@@ -7,6 +7,7 @@ from time import sleep
 from threading import Thread
 
 class ENetworkCommand(Enum):
+    socket_failed = -1
     greeting = 1
     game_start = 2
     container_update = 3
@@ -39,18 +40,27 @@ def send_command_to_socket(networkCommand, socket):
         bytes_size = bytes_size
         # bytes_size = base64.encodebytes(size)
         print("sending: ", networkCommand.comm, " | size: ", bytes_size)
-        send_data(socket, bytes_size, 4)
-        sleep(0.1)
-        send_data(socket, pickled, size)
+        try:
+            send_data(socket, bytes_size, 4)
+            sleep(0.1)
+            send_data(socket, pickled, size)
+        except IOError:
+            print("Unable to send command: " + networkCommand.comm)
+
 
 def get_command_from_socket(sock):
-        size_bytes = receive_data(sock, 4)
-        size = int.from_bytes(size_bytes, byteorder='little')
-        # size = 8192
-        base64comm = receive_data(sock, size)
-        networkCommand = pickle.loads(base64.decodebytes(base64comm))
-        print("received: ", networkCommand.comm, " | size: ", size_bytes)
-        return networkCommand
+        try:
+            size_bytes = receive_data(sock, 4)
+            size = int.from_bytes(size_bytes, byteorder='little')
+            # size = 8192
+            base64comm = receive_data(sock, size)
+            networkCommand = pickle.loads(base64.decodebytes(base64comm))
+            print("received: ", networkCommand.comm, " | size: ", size_bytes)
+            return networkCommand
+        except IOError:
+            print("Unable to receive command")
+            return NetworkCommand(ENetworkCommand.socket_failed, None)
+
 
 def receive_data(sock, datalen):
     chunks = []
@@ -58,12 +68,13 @@ def receive_data(sock, datalen):
     while bytes_recd < datalen:
         chunk = sock.recv(min(datalen - bytes_recd, 2048))
         if chunk == b'':
-            # raise RuntimeError("socket connection broken")
+            raise IOError("socket connection broken")
             print("noting received; left to receive: ", datalen - bytes_recd)
             sleep(0.2)
         chunks.append(chunk)
         bytes_recd = bytes_recd + len(chunk)
     return b''.join(chunks)
+
 
 def send_data(sock, msg, datalen):
         totalsent = 0
@@ -71,7 +82,7 @@ def send_data(sock, msg, datalen):
             print("sending data of len: ", len(msg[totalsent:]))
             sent = sock.send(msg[totalsent:])
             if sent == 0:
-                # raise RuntimeError("socket connection broken")
+                raise IOError("socket connection broken")
                 print("noting sent; left to sent: ", datalen - totalsent)
                 sleep(0.2)
             totalsent = totalsent + sent

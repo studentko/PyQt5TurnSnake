@@ -71,6 +71,8 @@ class ServerGame:
         for i in range(len(self.clients)):
             c = self.clients[i]
             command = get_command_from_socket(c)
+            if command.comm == ENetworkCommand.socket_failed:
+                continue
             for snake in self.levelController.players[i].snakes:
                 snake.set_move_steps(command.data.get_plan(snake))
 

@@ -52,7 +52,7 @@ class Server:
             send_command_to_socket(NetworkCommand(ENetworkCommand.greeting, greetingData), c)
 
             command = get_command_from_socket(c)
-            if command.data is None:
+            if command.data is None or command.comm == ENetworkCommand.socket_failed:
                 self.clientsNames[c] = "Player " + str(len(self.clients) + 1)
             else:
                 self.clientsNames[c] = command.data
