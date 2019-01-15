@@ -17,6 +17,7 @@ class ENetworkCommand(Enum):
     update_end = 7
     game_end = 8
     tournament_update = 9
+    server_closing = 10
 
 
 class NetworkCommand:

@@ -33,7 +33,7 @@ class Server:
         self.accept_clients()
         self.create_server_games()
         self.start_game_loop()
-        print("-----------------------------> Server completed")
+        self.close_server()
 
     def send_command(self, networkCommand):
         threads = []
@@ -124,8 +124,18 @@ class Server:
             for t in threads:
                 t.join()
 
+            if self.gameConfig.tournament is False:
+                break
+
             if len(self.serverGames) > 0:
                 self.create_server_games()
             else:
                 self.send_command(NetworkCommand(ENetworkCommand.tournament_update, self.tournamentUpdateData))
                 break
+
+    def close_server(self):
+        self.send_command(NetworkCommand(ENetworkCommand.server_closing, None))
+        for c in self.clients:
+            c.close()
+        self.socket.close()
+        print("-----------------------------> Server completed")
